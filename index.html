@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>収納量調査 什器ピン打ちMock</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #eef0f3; color: #222; }
+
+/* ---------- Header ---------- */
+.topbar { display: flex; align-items: center; gap: 14px; background: #1B2540; color: #fff; padding: 10px 20px; }
+.brand { display: flex; align-items: baseline; gap: 8px; margin-right: 8px; }
+.brand-title { font-size: 16px; font-weight: 700; }
+.brand-sub { font-size: 10px; letter-spacing: 1px; color: #8f9ac0; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+.btn-open { background: #2b3760; color: #fff; }
+.btn-open:hover { background: #364373; }
+.btn-excel { background: #1D6F42; color: #fff; }
+.btn-excel:hover { background: #24864f; }
+.btn-image { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+.btn-image:hover { background: rgba(255,255,255,0.18); }
+.topbar-status { font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
+.status-empty { background: rgba(255,255,255,0.08); color: #c7ccdb; }
+.status-loaded { background: rgba(46,125,50,0.18); color: #8fe0a0; }
+.topbar-spacer { margin-left: auto; }
+
+/* ---------- Sub toolbars ---------- */
+.toolbar { display: flex; gap: 10px; align-items: center; margin: 14px 20px 0; flex-wrap: wrap; }
+.toolbar-label { font-size: 13px; color: #666; margin-right: 4px; }
+.cat-btn { padding: 6px 18px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; border: 2px solid; transition: all 0.15s; }
+.cat-btn:hover { opacity: 0.85; }
+.action-btn { padding: 6px 14px; font-size: 12px; border-radius: 6px; cursor: pointer; background: #fff; border: 1px solid #ccc; color: #555; }
+.action-btn:hover { background: #f0f0f0; }
+.subtitle { font-size: 11px; color: #999; margin: 6px 20px 0; }
+
+.pdf-toolbar { display: none; align-items: center; gap: 16px; margin: 10px 20px 0; font-size: 12px; color: #555; flex-wrap: wrap; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px 14px; }
+.pdf-toolbar .filename { font-weight: 600; color: #2E7D32; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ctrl-group { display: flex; align-items: center; gap: 6px; }
+.ctrl-label { color: #999; font-size: 11px; }
+.mini-btn { width: 24px; height: 24px; border-radius: 5px; border: 1px solid #ccc; background: #fff; cursor: pointer; font-size: 13px; line-height: 1; color: #555; }
+.mini-btn:hover { background: #f0f0f0; }
+.mini-btn:disabled { opacity: 0.35; cursor: default; }
+.mini-btn:disabled:hover { background: #fff; }
+#pin-size { width: 90px; }
+#pdf-status { font-size: 12px; color: #888; margin: 8px 20px 0; min-height: 14px; }
+
+/* ---------- Main layout ---------- */
+.main { display: flex; gap: 16px; padding: 16px 20px 24px; align-items: flex-start; }
+
+.plan-container { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; cursor: crosshair; user-select: none;
+  background-color: #fafbfc;
+  background-image: repeating-linear-gradient(0deg, #ececec, #ececec 1px, transparent 1px, transparent 28px), repeating-linear-gradient(90deg, #ececec, #ececec 1px, transparent 1px, transparent 28px);
+}
+.plan-container.is-empty { min-height: 460px; cursor: pointer; }
+.plan-container.panning, .plan-container.panning * { cursor: grabbing !important; }
+.plan-container.dragover .drop-zone { border-color: #185FA5; background: #F0F6FC; }
+
+.plan-inner { position: relative; transform-origin: center center; }
+.plan-inner.fill { position: absolute; inset: 0; }
+
+#pdf-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.drop-zone { position: absolute; inset: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #c9ccd3; border-radius: 12px; background: #fff; text-align: center; padding: 24px; transition: all 0.15s; }
+.drop-icon { width: 56px; height: 56px; border-radius: 10px; background: #eef0f4; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.drop-title { font-size: 15px; font-weight: 700; color: #2b3a55; margin-bottom: 10px; }
+.drop-sub { font-size: 12px; color: #999; line-height: 1.8; }
+
+#pins-layer { position: absolute; inset: 0; pointer-events: none; }
+
+.zoom-float-panel { position: absolute; left: 16px; bottom: 16px; display: none; align-items: center; gap: 2px; background: #fff; border-radius: 999px; box-shadow: 0 4px 16px rgba(0,0,0,0.18); padding: 6px 8px; z-index: 20; }
+.zoom-float-panel.visible { display: flex; }
+.zoom-float-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #444; font-size: 16px; line-height: 1; }
+.zoom-float-btn:hover { background: #f0f0f0; }
+.zoom-float-value { font-size: 13px; font-weight: 700; color: #222; min-width: 44px; text-align: center; }
+.zoom-float-divider { width: 1px; height: 20px; background: #e5e5e5; margin: 0 2px; }
+.zoom-float-fit { font-size: 12px; font-weight: 600; color: #444; padding: 0 10px; height: 30px; border-radius: 999px; border: none; background: transparent; cursor: pointer; }
+.zoom-float-fit:hover { background: #f0f0f0; }
+.pin { position: absolute; color: #fff; font-weight: 600; border-radius: 4px; white-space: nowrap; pointer-events: auto; cursor: default; line-height: 1.2; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+
+/* ---------- Sidebar ---------- */
+.sidebar { width: 300px; flex-shrink: 0; background: #fff; border: 1px solid #ddd; border-radius: 10px; display: flex; flex-direction: column; max-height: calc(100vh - 210px); overflow: hidden; }
+.sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 8px; }
+.sidebar-header > span:first-child { font-size: 14px; font-weight: 700; color: #222; }
+.sidebar-header-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.sidebar-count { font-size: 11px; color: #888; font-weight: 500; }
+.sidebar-edit-btn { font-size: 11px; color: #185FA5; background: none; border: 1px solid #cddcee; border-radius: 5px; padding: 4px 8px; cursor: pointer; }
+.sidebar-edit-btn:hover { background: #F0F6FC; }
+.pin-row-dept { color: #888; font-size: 11px; }
+.legend { display: flex; gap: 10px; padding: 10px 16px; font-size: 11px; color: #888; border-bottom: 1px solid #f2f2f2; flex-wrap: wrap; }
+.legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 3px; }
+.pin-list { flex: 1; overflow-y: auto; padding: 4px 16px; min-height: 60px; }
+.pin-row { display: flex; align-items: center; gap: 8px; padding: 7px 2px; font-size: 12px; color: #444; border-bottom: 1px solid #f5f5f5; }
+.pin-row-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.pin-row-id { font-weight: 700; }
+.pin-row-fm { color: #185FA5; font-size: 11px; font-weight: 700; background: #EEF3FA; padding: 1px 6px; border-radius: 3px; }
+.pin-row-page { margin-left: auto; color: #aaa; font-size: 11px; }
+.empty-msg { text-align: center; color: #aaa; font-size: 12px; padding: 50px 10px; line-height: 1.9; }
+.sidebar-stats { border-top: 1px solid #eee; padding: 16px; }
+.stats-total-label { font-size: 11px; color: #999; margin-bottom: 4px; }
+.stats-total-value { font-size: 28px; font-weight: 700; color: #1B2540; margin-bottom: 12px; }
+.stats-total-value .unit { font-size: 13px; font-weight: 500; color: #999; margin-left: 4px; }
+.stats-breakdown { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #555; }
+.stats-breakdown div { display: flex; align-items: center; gap: 6px; }
+.stats-breakdown strong { margin-left: auto; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+
+@media (max-width: 800px) {
+  .main { flex-direction: column; }
+  .sidebar { width: 100%; max-height: none; }
+  .pin-list { max-height: 220px; }
+}
+
+/* ---------- Modal (その他什器の情報入力で使用) ---------- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(20,25,40,0.45); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal { background: #fff; border-radius: 10px; width: 680px; max-width: 100%; max-height: 84vh; display: flex; flex-direction: column; box-shadow: 0 12px 36px rgba(0,0,0,0.3); }
+
+/* ---------- Toast ---------- */
+#app-toast { position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 20px); background: #1B2540; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 1200; max-width: 80vw; text-align: center; }
+#app-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #eee; font-size: 15px; font-weight: 700; color: #222; }
+.modal-close { border: none; background: none; font-size: 20px; cursor: pointer; color: #999; line-height: 1; }
+.modal-close:hover { color: #555; }
+.modal-body { overflow-y: auto; overflow-x: auto; padding: 0 18px; flex: 1; }
+.modal-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid #eee; font-size: 12px; color: #888; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-title">収納量調査</span>
+    <span class="brand-sub">FIXTURE PIN MAPPING</span>
+  </div>
+  <button class="btn btn-open" onclick="document.getElementById('pdf-input').click()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    図面を開く
+  </button>
+  <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="handlePdfFile(event)">
+  <span id="topbar-status" class="topbar-status status-empty">図面未読み込み</span>
+  <span class="topbar-spacer"></span>
+  <button class="btn btn-image" onclick="exportImage()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+    画像エクスポート
+  </button>
+  <button class="btn btn-excel" onclick="exportToExcel()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 11 12 16 17 11"/><path d="M5 21h14"/></svg>
+    Excelエクスポート
+  </button>
+</header>
+
+<div class="toolbar">
+  <span class="toolbar-label">カテゴリ選択：</span>
+  <button id="btn-low" class="cat-btn" onclick="selectCat('low')" style="background:#185FA5;color:#fff;border-color:#185FA5;">ローキャビ</button>
+  <button id="btn-high" class="cat-btn" onclick="selectCat('high')" style="background:transparent;color:#A32D2D;border-color:#A32D2D;">ハイキャビ</button>
+  <button id="btn-other" class="cat-btn" onclick="selectCat('other')" style="background:transparent;color:#854F0B;border-color:#854F0B;">その他の什器</button>
+  <button class="action-btn" onclick="undoLast()">取り消し</button>
+  <button class="action-btn" onclick="clearAll()">全消去</button>
+</div>
+<p class="subtitle">カテゴリを選択し、図面上をクリックして什器にピンを配置します。カテゴリごとに自動連番が付与されます。</p>
+
+<div id="pdf-toolbar" class="pdf-toolbar">
+  <span class="filename" id="pdf-filename"></span>
+  <span class="ctrl-group">
+    <button class="mini-btn" id="prev-page-btn" onclick="prevPage()">◀</button>
+    <span id="page-indicator">1 / 1</span>
+    <button class="mini-btn" id="next-page-btn" onclick="nextPage()">▶</button>
+  </span>
+  <span class="ctrl-group">
+    <span class="ctrl-label">ピンサイズ</span>
+    <input type="range" id="pin-size" min="60" max="200" value="100" step="10" oninput="changePinSize(this.value)">
+    <span id="pin-size-indicator">100%</span>
+  </span>
+  <button class="action-btn" onclick="resetView()" title="縮尺・回転をリセット">表示リセット</button>
+  <button class="action-btn" onclick="resetPdf()">図面をクリア</button>
+</div>
+
+<div id="pdf-status"></div>
+
+<div class="main">
+  <div id="plan-container" class="plan-container is-empty">
+    <div id="plan-inner" class="plan-inner fill">
+      <div id="drop-zone" class="drop-zone">
+        <div class="drop-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8a93a3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="12" x2="12" y2="18"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <div class="drop-title">PDF図面をドロップ / クリックして選択</div>
+        <div class="drop-sub">PDFファイルに対応<br>読み込み後、図面上をクリックして什器にピンを配置できます</div>
+      </div>
+      <div id="pins-layer"></div>
+    </div>
+    <div id="zoom-float-panel" class="zoom-float-panel">
+      <button class="zoom-float-btn" onclick="changeZoom(-10)" title="縮小">－</button>
+      <span class="zoom-float-value" id="zoom-indicator">100%</span>
+      <button class="zoom-float-btn" onclick="changeZoom(10)" title="拡大">＋</button>
+      <span class="zoom-float-divider"></span>
+      <button class="zoom-float-fit" onclick="fitZoom()" title="縮尺を100%に戻す">Fit</button>
+      <span class="zoom-float-divider"></span>
+      <button class="zoom-float-btn" onclick="rotateDrawing(-90)" title="反時計回りに回転">⟲</button>
+      <button class="zoom-float-btn" onclick="rotateDrawing(90)" title="時計回りに回転">⟳</button>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span>配置什器一覧</span>
+      <span class="sidebar-header-actions">
+        <span class="sidebar-count" id="sidebar-count">0件</span>
+      </span>
+    </div>
+    <div class="sidebar-stats">
+      <div class="stats-total-label">什器合計</div>
+      <div class="stats-total-value"><span id="count-total">0</span><span class="unit">個</span></div>
+      <div class="stats-breakdown">
+        <div><span class="dot" style="background:#185FA5;"></span>ローキャビ <strong id="count-low">0</strong></div>
+        <div><span class="dot" style="background:#A32D2D;"></span>ハイキャビ <strong id="count-high">0</strong></div>
+        <div><span class="dot" style="background:#BA7517;"></span>その他 <strong id="count-other">0</strong></div>
+      </div>
+    </div>
+    <div class="sidebar-stats" style="border-top:1px solid #eee;">
+      <div class="stats-total-label">収納量（ファイルメーター）</div>
+      <div class="stats-total-value"><span id="fm-total">0.0</span><span class="unit">fm</span></div>
+      <div class="stats-breakdown">
+        <div><span class="dot" style="background:#185FA5;"></span>ローキャビ <strong id="fm-low">0.0</strong></div>
+        <div><span class="dot" style="background:#A32D2D;"></span>ハイキャビ <strong id="fm-high">0.0</strong></div>
+        <div><span class="dot" style="background:#BA7517;"></span>その他 <strong id="fm-other">0.0</strong></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div id="other-input-overlay" class="modal-overlay">
+  <div class="modal" style="width:360px;">
+    <div class="modal-header">
+      <span>その他什器の情報を入力</span>
+      <button class="modal-close" onclick="cancelOtherInput()">×</button>
+    </div>
+    <div class="modal-body" style="padding:18px;">
+      <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">段数</label>
+      <input type="number" id="other-levels-input" min="1" step="1" value="1" style="width:100%; padding:8px 10px; border:1px solid #ccc; border-radius:6px; font-size:13px; margin-bottom:14px;" oninput="updateOtherFmPreview()">
+      <label style="display:block; font-size:12px; color:#666; margin-bottom:6px;">長さ（m）</label>
+      <input type="number" id="other-length-input" min="0" step="0.1" placeholder="例: 1.8" style="width:100%; padding:8px 10px; border:1px solid #ccc; border-radius:6px; font-size:13px;" oninput="updateOtherFmPreview()">
+      <div style="margin-top:12px; font-size:12px; color:#888;">収納量（自動計算）: <strong id="other-fm-preview" style="color:#185FA5; font-size:14px;">0.0</strong>fm　<span style="color:#bbb;">（段数 × 長さ）</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="cancelOtherInput()">キャンセル</button>
+      <button class="btn btn-excel" onclick="confirmOtherInput()">この内容で配置</button>
+    </div>
+  </div>
+</div>
+
+<div id="app-toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const cats = {
+  low:   { prefix: 'L', color: '#185FA5', bg: '#E6F1FB', label: 'ローキャビ', count: 0 },
+  high:  { prefix: 'H', color: '#A32D2D', bg: '#FCEBEB', label: 'ハイキャビ', count: 0 },
+  other: { prefix: 'T', color: '#BA7517', bg: '#FAEEDA', label: 'その他',     count: 0 }
+};
+let current = 'low';
+let pins = [];
+
+// --- 収納量（ファイルメーター）定義 ---
+// ローキャビ: 0.9m x 3段 = 2.7fm / ハイキャビ: 0.9m x 6段 = 5.4fm / その他什器: 都度入力
+const LOW_FM = 2.7;
+const HIGH_FM = 5.4;
+
+// --- 現状区分 / 対応方針 定義 ---
+const STATE_OPTIONS = [
+  { value: 'a', label: 'a: 空き', color: '#999999' },
+  { value: 'b', label: 'b: 備品（流動あり）', color: '#2E7D32' },
+  { value: 'c', label: 'c: 備品（流動なし）', color: '#B08900' },
+  { value: 'd', label: 'd: 紙（流動あり）', color: '#185FA5' },
+  { value: 'e', label: 'e: 紙（流動なし）', color: '#A32D2D' }
+];
+const ACTION_OPTIONS = ['存続', '削減', '電子化', '移設', '廃棄', '検討中'];
+const STATE_TO_ACTION = { a: '削減', b: '存続', c: '削減', d: '存続', e: '電子化' };
+const ACTION_COLORS = { '存続': '#2E7D32', '削減': '#A32D2D', '電子化': '#185FA5', '移設': '#854F0B', '廃棄': '#555555', '検討中': '#B08900' };
+const UNSET_COLOR = '#d8dbe2';
+
+// ローキャビは3段、ハイキャビは6段固定。その他什器は段数を都度入力する。現状区分(a〜e)は段単位で選択する
+const LOW_LEVELS = 3;
+const HIGH_LEVELS = 6;
+
+function getLevelCount(cat) {
+  if (cat === 'low') return LOW_LEVELS;
+  if (cat === 'high') return HIGH_LEVELS;
+  return 1;
+}
+
+function makeLevels(cat, count) {
+  const n = count && count > 0 ? count : getLevelCount(cat);
+  return Array.from({ length: n }, () => ({ state: '', action: '' }));
+}
+
+function getMaxLevelsInUse() {
+  return pins.reduce((max, p) => Math.max(max, (p.levels || []).length), 1);
+}
+
+function stateInfo(value) {
+  return STATE_OPTIONS.find(s => s.value === value) || null;
+}
+
+// --- PDF state ---
+let pdfDoc = null;
+let usingPdf = false;
+let currentPage = 1;
+let totalPages = 1;
+let pdfFileName = '';
+let canvasAspect = 1; // height / width of the rendered page
+let baseWidthPx = 0;  // on-screen CSS width of the drawing at zoom 100%
+
+// --- View state (zoom / rotation / pin size) ---
+let zoom = 100;      // percent, 50-500
+let rotation = 0;    // degrees, 0/90/180/270
+let pinSizePct = 100; // percent, 60-200
+let panX = 0;        // px, screen-space pan offset
+let panY = 0;
+
+function selectCat(cat) {
+  current = cat;
+  ['low','high','other'].forEach(c => {
+    const b = document.getElementById('btn-' + c);
+    if (c === cat) {
+      b.style.background = cats[c].color;
+      b.style.color = '#fff';
+    } else {
+      b.style.background = 'transparent';
+      b.style.color = cats[c].color;
+    }
+  });
+}
+
+const container = document.getElementById('plan-container');
+
+function getLocalPercent(clientX, clientY) {
+  const inner = document.getElementById('plan-inner');
+  const rect = inner.getBoundingClientRect();
+  const screenX = ((clientX - rect.left) / rect.width) * 100;
+  const screenY = ((clientY - rect.top) / rect.height) * 100;
+  let x, y;
+  if (rotation === 90) { x = screenY; y = 100 - screenX; }
+  else if (rotation === 180) { x = 100 - screenX; y = 100 - screenY; }
+  else if (rotation === 270) { x = 100 - screenY; y = screenX; }
+  else { x = screenX; y = screenY; }
+  return { x, y };
+}
+
+let pendingOtherClick = null;
+
+container.addEventListener('click', function(e) {
+  if (!usingPdf) {
+    document.getElementById('pdf-input').click();
+    return;
+  }
+  if (e.shiftKey || panDragged) { panDragged = false; return; }
+  const { x: xPct, y: yPct } = getLocalPercent(e.clientX, e.clientY);
+  if (xPct < 0 || xPct > 100 || yPct < 0 || yPct > 100) return;
+
+  if (current === 'low') {
+    placePin('low', xPct, yPct, LOW_FM, makeLevels('low'));
+  } else if (current === 'high') {
+    placePin('high', xPct, yPct, HIGH_FM, makeLevels('high'));
+  } else {
+    pendingOtherClick = { xPct, yPct };
+    document.getElementById('other-levels-input').value = '1';
+    document.getElementById('other-length-input').value = '';
+    document.getElementById('other-input-overlay').style.display = 'flex';
+    updateOtherFmPreview();
+    setTimeout(function() {
+      const el = document.getElementById('other-levels-input');
+      if (el) { el.focus(); el.select(); }
+    }, 0);
+  }
+});
+
+function placePin(cat, xPct, yPct, fm, levels, length) {
+  cats[cat].count++;
+  const num = String(cats[cat].count).padStart(3, '0');
+  const id = cats[cat].prefix + num;
+  pins.push({ cat, id, xPct, yPct, num: cats[cat].count, context: currentContext(), page: currentPage, dept: '', fm, levels, photo: null, length: cat === 'other' ? (length || 0) : 0 });
+  renderPins();
+  updateStats();
+}
+
+function updateOtherFmPreview() {
+  let lv = parseInt(document.getElementById('other-levels-input').value, 10);
+  if (isNaN(lv) || lv < 1) lv = 1;
+  const length = parseFloat(document.getElementById('other-length-input').value) || 0;
+  document.getElementById('other-fm-preview').textContent = (lv * length).toFixed(1);
+}
+
+function confirmOtherInput() {
+  if (!pendingOtherClick) return;
+  let lv = parseInt(document.getElementById('other-levels-input').value, 10);
+  if (isNaN(lv) || lv < 1) lv = 1;
+  const length = parseFloat(document.getElementById('other-length-input').value) || 0;
+  const fm = +(lv * length).toFixed(2);
+  placePin('other', pendingOtherClick.xPct, pendingOtherClick.yPct, fm, makeLevels('other', lv), length);
+  pendingOtherClick = null;
+  document.getElementById('other-input-overlay').style.display = 'none';
+}
+
+function cancelOtherInput() {
+  pendingOtherClick = null;
+  document.getElementById('other-input-overlay').style.display = 'none';
+}
+
+document.getElementById('other-input-overlay').addEventListener('click', function(e) {
+  if (e.target.id === 'other-input-overlay') cancelOtherInput();
+});
+
+['dragenter','dragover'].forEach(evt => container.addEventListener(evt, function(e) {
+  e.preventDefault();
+  container.classList.add('dragover');
+}));
+['dragleave','drop'].forEach(evt => container.addEventListener(evt, function(e) {
+  e.preventDefault();
+  container.classList.remove('dragover');
+}));
+container.addEventListener('drop', function(e) {
+  const file = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file) loadPdfFile(file);
+});
+
+// --- マウスホイールでズーム ---
+container.addEventListener('wheel', function(e) {
+  if (!usingPdf) return;
+  e.preventDefault();
+  const delta = e.deltaY < 0 ? 10 : -10;
+  zoom = Math.min(500, Math.max(50, zoom + delta));
+  applyTransform();
+  updateZoomIndicator();
+  updateHeaderStatus();
+  renderPins();
+}, { passive: false });
+
+// --- 図面の移動: ①中ボタン(ホイール)を押したままドラッグ ②シフトキーを押しながら左ドラッグ ---
+let isPanning = false;
+let panStartX = 0, panStartY = 0;
+let panOriginX = 0, panOriginY = 0;
+let panDragged = false; // シフト+左ドラッグがピン配置クリックに誤変換されないようにするフラグ
+
+container.addEventListener('mousedown', function(e) {
+  if (!usingPdf) return;
+  const isMiddle = e.button === 1;
+  const isShiftLeft = e.button === 0 && e.shiftKey;
+  if (!isMiddle && !isShiftLeft) return;
+  e.preventDefault();
+  isPanning = true;
+  panDragged = false;
+  panStartX = e.clientX;
+  panStartY = e.clientY;
+  panOriginX = panX;
+  panOriginY = panY;
+  container.classList.add('panning');
+});
+
+window.addEventListener('mousemove', function(e) {
+  if (!isPanning) return;
+  const dx = e.clientX - panStartX;
+  const dy = e.clientY - panStartY;
+  if (Math.abs(dx) > 2 || Math.abs(dy) > 2) panDragged = true;
+  panX = panOriginX + dx;
+  panY = panOriginY + dy;
+  applyTransform();
+});
+
+window.addEventListener('mouseup', function(e) {
+  if ((e.button === 1 || e.button === 0) && isPanning) {
+    isPanning = false;
+    container.classList.remove('panning');
+  }
+});
+
+// 中ボタンクリックによるブラウザの自動スクロール（オートスクロールカーソル）を抑止
+container.addEventListener('auxclick', function(e) {
+  if (e.button === 1) e.preventDefault();
+});
+
+window.addEventListener('resize', debounce(function() {
+  if (usingPdf) sizePlanInner();
+}, 150));
+
+function debounce(fn, ms) {
+  let t;
+  return function() { clearTimeout(t); t = setTimeout(fn, ms); };
+}
+
+function currentContext() {
+  return 'pdf-' + currentPage;
+}
+
+function renderPins() {
+  const layer = document.getElementById('pins-layer');
+  layer.innerHTML = '';
+  const ctx = currentContext();
+  const counterRotate = -rotation;
+  const counterScale = 1 / (zoom / 100);
+  const sizeScale = pinSizePct / 100;
+  pins.filter(p => p.context === ctx).forEach((p, i) => {
+    const c = cats[p.cat];
+    const el = document.createElement('div');
+    el.className = 'pin';
+    el.style.left = p.xPct + '%';
+    el.style.top = p.yPct + '%';
+    el.style.background = c.color;
+    el.style.zIndex = i + 1;
+    el.style.fontSize = (11 * sizeScale).toFixed(1) + 'px';
+    el.style.padding = (3 * sizeScale).toFixed(1) + 'px ' + (7 * sizeScale).toFixed(1) + 'px';
+    el.style.transform = 'translate(-50%, -50%) rotate(' + counterRotate + 'deg) scale(' + counterScale + ')';
+    el.textContent = p.id;
+    const fmVal = (parseFloat(p.fm) || 0).toFixed(1);
+    el.title = c.label + ' ' + p.id + (p.dept ? '　部署: ' + p.dept : '') + '　収納量: ' + fmVal + 'fm（' + p.page + 'ページ）';
+    layer.appendChild(el);
+  });
+}
+
+function updateStats() {
+  document.getElementById('count-low').textContent = cats.low.count;
+  document.getElementById('count-high').textContent = cats.high.count;
+  document.getElementById('count-other').textContent = cats.other.count;
+  const total = cats.low.count + cats.high.count + cats.other.count;
+  document.getElementById('count-total').textContent = total;
+  document.getElementById('sidebar-count').textContent = total + '件';
+
+  const sumFm = (list) => list.reduce((s, p) => s + (parseFloat(p.fm) || 0), 0);
+  const fmLow = sumFm(pins.filter(p => p.cat === 'low'));
+  const fmHigh = sumFm(pins.filter(p => p.cat === 'high'));
+  const fmOther = sumFm(pins.filter(p => p.cat === 'other'));
+  document.getElementById('fm-low').textContent = fmLow.toFixed(1);
+  document.getElementById('fm-high').textContent = fmHigh.toFixed(1);
+  document.getElementById('fm-other').textContent = fmOther.toFixed(1);
+  document.getElementById('fm-total').textContent = (fmLow + fmHigh + fmOther).toFixed(1);
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, function(ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}
+
+function tryPrint() {
+  try {
+    window.print();
+  } catch (err) {
+    console.error(err);
+    showToast('この環境では印刷ダイアログを開けませんでした。ブラウザで直接開いてお試しください。');
+  }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('app-toast');
+  if (!toast) { console.warn(msg); return; }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(function() { toast.classList.remove('show'); }, 3200);
+}
+
+function undoLast() {
+  if (!pins.length) return;
+  const last = pins.pop();
+  cats[last.cat].count--;
+  renderPins();
+  updateStats();
+}
+
+function clearAll() {
+  pins = [];
+  Object.values(cats).forEach(c => c.count = 0);
+  renderPins();
+  updateStats();
+}
+
+// --- PDF loading ---
+function handlePdfFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  loadPdfFile(file);
+}
+
+function loadPdfFile(file) {
+  if (file.type !== 'application/pdf') {
+    showToast('PDFファイルを選択してください。');
+    document.getElementById('pdf-input').value = '';
+    return;
+  }
+  const status = document.getElementById('pdf-status');
+  status.textContent = '「' + file.name + '」を読み込み中...';
+
+  const reader = new FileReader();
+  reader.onload = function() {
+    const typedArray = new Uint8Array(this.result);
+    pdfjsLib.getDocument({ data: typedArray }).promise.then(function(pdf) {
+      pdfDoc = pdf;
+      totalPages = pdf.numPages;
+      currentPage = 1;
+      usingPdf = true;
+      pdfFileName = file.name;
+      zoom = 100;
+      rotation = 0;
+      panX = 0;
+      panY = 0;
+      document.getElementById('pdf-filename').textContent = file.name;
+      document.getElementById('pdf-toolbar').style.display = 'flex';
+      document.getElementById('zoom-float-panel').classList.add('visible');
+      document.getElementById('drop-zone').style.display = 'none';
+      document.getElementById('plan-inner').classList.remove('fill');
+      document.getElementById('plan-container').classList.remove('is-empty');
+      status.textContent = '';
+      renderPage(currentPage);
+    }).catch(function(err) {
+      console.error(err);
+      status.textContent = '';
+      showToast('PDFの読み込みに失敗しました。ファイルが破損していないか確認してください。');
+    });
+  };
+  reader.onerror = function() {
+    status.textContent = '';
+    showToast('ファイルの読み込みに失敗しました。');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function renderPage(num) {
+  const status = document.getElementById('pdf-status');
+  status.textContent = 'ページを描画中...';
+  pdfDoc.getPage(num).then(function(page) {
+    const viewport = page.getViewport({ scale: 2 });
+    let canvas = document.getElementById('pdf-canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.id = 'pdf-canvas';
+      document.getElementById('plan-inner').insertBefore(canvas, document.getElementById('pins-layer'));
+    }
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    canvasAspect = viewport.height / viewport.width;
+    const renderContext = { canvasContext: canvas.getContext('2d'), viewport: viewport };
+    page.render(renderContext).promise.then(function() {
+      status.textContent = '';
+      sizePlanInner();
+      updatePageIndicator();
+      updateZoomIndicator();
+      updateHeaderStatus();
+      renderPins();
+    });
+  });
+}
+
+function getAvailablePlanHeight() {
+  const c = document.getElementById('plan-container');
+  const rect = c.getBoundingClientRect();
+  const available = window.innerHeight - rect.top - 24;
+  return Math.max(280, available);
+}
+
+function sizePlanInner() {
+  const c = document.getElementById('plan-container');
+  const inner = document.getElementById('plan-inner');
+  const maxHeight = getAvailablePlanHeight();
+
+  let baseWidth = c.clientWidth;
+  let baseHeight = Math.round(baseWidth * canvasAspect);
+
+  if (baseHeight > maxHeight) {
+    baseHeight = Math.round(maxHeight);
+    baseWidth = Math.round(baseHeight / canvasAspect);
+  }
+
+  baseWidthPx = baseWidth;
+  inner.style.width = baseWidth + 'px';
+  inner.style.height = baseHeight + 'px';
+  c.style.height = baseHeight + 'px';
+  applyTransform();
+}
+
+function applyTransform() {
+  const inner = document.getElementById('plan-inner');
+  inner.style.transform = 'translate(' + panX + 'px, ' + panY + 'px) rotate(' + rotation + 'deg) scale(' + (zoom / 100) + ')';
+}
+
+function updatePageIndicator() {
+  document.getElementById('page-indicator').textContent = currentPage + ' / ' + totalPages;
+  document.getElementById('prev-page-btn').disabled = currentPage <= 1;
+  document.getElementById('next-page-btn').disabled = currentPage >= totalPages;
+}
+
+function updateZoomIndicator() {
+  document.getElementById('zoom-indicator').textContent = zoom + '%';
+}
+
+function updateHeaderStatus() {
+  const el = document.getElementById('topbar-status');
+  if (!usingPdf) {
+    el.textContent = '図面未読み込み';
+    el.className = 'topbar-status status-empty';
+  } else {
+    el.textContent = pdfFileName + ' ｜ ' + currentPage + '/' + totalPages + 'ページ ｜ 縮尺' + zoom + '% ｜ 回転' + rotation + '°';
+    el.className = 'topbar-status status-loaded';
+  }
+}
+
+function prevPage() {
+  if (!usingPdf || currentPage <= 1) return;
+  currentPage--;
+  renderPage(currentPage);
+}
+
+function nextPage() {
+  if (!usingPdf || currentPage >= totalPages) return;
+  currentPage++;
+  renderPage(currentPage);
+}
+
+function changeZoom(delta) {
+  if (!usingPdf) return;
+  zoom = Math.min(500, Math.max(50, zoom + delta));
+  applyTransform();
+  updateZoomIndicator();
+  updateHeaderStatus();
+  renderPins();
+}
+
+function fitZoom() {
+  if (!usingPdf) return;
+  zoom = 100;
+  panX = 0;
+  panY = 0;
+  applyTransform();
+  updateZoomIndicator();
+  updateHeaderStatus();
+  renderPins();
+}
+
+function rotateDrawing(delta) {
+  if (!usingPdf) return;
+  delta = delta || 90;
+  rotation = (rotation + delta + 360) % 360;
+  applyTransform();
+  updateHeaderStatus();
+  renderPins();
+}
+
+function changePinSize(val) {
+  pinSizePct = parseInt(val, 10);
+  document.getElementById('pin-size-indicator').textContent = pinSizePct + '%';
+  renderPins();
+}
+
+function resetView() {
+  if (!usingPdf) return;
+  zoom = 100;
+  rotation = 0;
+  panX = 0;
+  panY = 0;
+  applyTransform();
+  updateZoomIndicator();
+  updateHeaderStatus();
+  renderPins();
+}
+
+function resetPdf() {
+  usingPdf = false;
+  pdfDoc = null;
+  currentPage = 1;
+  totalPages = 1;
+  pdfFileName = '';
+  zoom = 100;
+  rotation = 0;
+  panX = 0;
+  panY = 0;
+  const canvas = document.getElementById('pdf-canvas');
+  if (canvas) canvas.remove();
+  const inner = document.getElementById('plan-inner');
+  inner.style.width = '';
+  inner.style.height = '';
+  inner.style.transform = '';
+  inner.classList.add('fill');
+  document.getElementById('drop-zone').style.display = 'flex';
+  document.getElementById('plan-container').classList.add('is-empty');
+  document.getElementById('plan-container').style.height = '';
+  document.getElementById('pdf-toolbar').style.display = 'none';
+  document.getElementById('zoom-float-panel').classList.remove('visible');
+  document.getElementById('pdf-status').textContent = '';
+  document.getElementById('pdf-input').value = '';
+  updateHeaderStatus();
+  renderPins();
+}
+
+// --- Image export ---
+function roundRectPath(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function exportImage() {
+  if (!usingPdf) {
+    showToast('図面が読み込まれていません。先にPDF図面を開いてください。');
+    return;
+  }
+  const srcCanvas = document.getElementById('pdf-canvas');
+  if (!srcCanvas) return;
+
+  const srcW = srcCanvas.width;
+  const srcH = srcCanvas.height;
+  const rot = rotation;
+  const outW = (rot === 90 || rot === 270) ? srcH : srcW;
+  const outH = (rot === 90 || rot === 270) ? srcW : srcH;
+
+  const out = document.createElement('canvas');
+  out.width = outW;
+  out.height = outH;
+  const ctx = out.getContext('2d');
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, outW, outH);
+
+  ctx.save();
+  ctx.translate(outW / 2, outH / 2);
+  ctx.rotate(rot * Math.PI / 180);
+  ctx.drawImage(srcCanvas, -srcW / 2, -srcH / 2);
+  ctx.restore();
+
+  const resScale = baseWidthPx ? (srcW / baseWidthPx) : 1;
+  const sizeScale = pinSizePct / 100;
+  const fontSize = Math.round(11 * sizeScale * resScale);
+  const padX = 7 * sizeScale * resScale;
+  const padY = 3 * sizeScale * resScale;
+  const radius = 4 * sizeScale * resScale;
+
+  ctx.font = '700 ' + fontSize + 'px -apple-system, "Segoe UI", Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  pins.filter(p => p.context === currentContext()).forEach(p => {
+    let ox, oy;
+    if (rot === 90) { ox = 100 - p.yPct; oy = p.xPct; }
+    else if (rot === 180) { ox = 100 - p.xPct; oy = 100 - p.yPct; }
+    else if (rot === 270) { ox = p.yPct; oy = 100 - p.xPct; }
+    else { ox = p.xPct; oy = p.yPct; }
+
+    const px = (ox / 100) * outW;
+    const py = (oy / 100) * outH;
+    const c = cats[p.cat];
+    const textWidth = ctx.measureText(p.id).width;
+    const boxW = textWidth + padX * 2;
+    const boxH = fontSize + padY * 2;
+
+    ctx.fillStyle = c.color;
+    roundRectPath(ctx, px - boxW / 2, py - boxH / 2, boxW, boxH, radius);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(p.id, px, py + fontSize * 0.04);
+  });
+
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  const filename = '収納量調査_図面_p' + currentPage + '_' + y + m + d + '.png';
+
+  out.toBlob(function(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}
+
+// --- Excel export ---
+function exportToExcel() {
+  if (!pins.length) {
+    showToast('出力するピンがありません。図面上にピンを配置してから出力してください。');
+    return;
+  }
+
+  function unitLength(p) {
+    if (p.cat === 'low' || p.cat === 'high') return 0.9;
+    return Math.round((parseFloat(p.length) || 0) * 10) / 10;
+  }
+
+  const detailRows = pins.map((p, i) => ({
+    'No': i + 1,
+    'ID': p.id,
+    'カテゴリ': cats[p.cat].label,
+    '段数': (p.levels || []).length,
+    '長さ(m)': unitLength(p),
+    '収納量(fm)': Math.round((parseFloat(p.fm) || 0) * 10) / 10,
+    'PDFページ': p.page,
+    'X位置(%)': Math.round(p.xPct * 100) / 100,
+    'Y位置(%)': Math.round(p.yPct * 100) / 100
+  }));
+
+  const fmByCat = { low: 0, high: 0, other: 0 };
+  pins.forEach(p => { fmByCat[p.cat] += parseFloat(p.fm) || 0; });
+  const fmTotalAll = fmByCat.low + fmByCat.high + fmByCat.other;
+
+  const summaryRows = [
+    { 'カテゴリ': cats.low.label, '数量': cats.low.count, '収納量(fm)': Math.round(fmByCat.low * 10) / 10 },
+    { 'カテゴリ': cats.high.label, '数量': cats.high.count, '収納量(fm)': Math.round(fmByCat.high * 10) / 10 },
+    { 'カテゴリ': cats.other.label, '数量': cats.other.count, '収納量(fm)': Math.round(fmByCat.other * 10) / 10 },
+    { 'カテゴリ': '合計', '数量': cats.low.count + cats.high.count + cats.other.count, '収納量(fm)': Math.round(fmTotalAll * 10) / 10 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+
+  const wsDetail = XLSX.utils.json_to_sheet(detailRows);
+  wsDetail['!cols'] = [{ wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, wsDetail, 'ピン一覧');
+
+  const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+  wsSummary['!cols'] = [{ wch: 14 }, { wch: 8 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, '集計');
+
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  XLSX.writeFile(wb, '収納量調査_ピン一覧_' + y + m + d + '.xlsx');
+}
+
+selectCat('low');
+</script>
+</body>
+</html>
