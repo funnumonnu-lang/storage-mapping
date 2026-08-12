@@ -9,7 +9,7 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #eef0f3; color: #222; }
 
 /* ---------- Header ---------- */
-.topbar { display: flex; align-items: center; gap: 14px; background: #1B2540; color: #fff; padding: 10px 20px; }
+.topbar { display: flex; align-items: center; gap: 14px; background: #1B2540; color: #fff; padding: 10px 20px; flex-wrap: wrap; }
 .brand { display: flex; align-items: baseline; gap: 8px; margin-right: 8px; }
 .brand-title { font-size: 16px; font-weight: 700; }
 .brand-sub { font-size: 10px; letter-spacing: 1px; color: #8f9ac0; }
@@ -70,16 +70,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
 .align-guide-y { left: 0; right: 0; height: 1.5px; }
 .align-guide.visible { display: block; }
 
-.zoom-float-panel { position: absolute; left: 16px; bottom: 16px; display: none; align-items: center; gap: 2px; background: #fff; border-radius: 999px; box-shadow: 0 4px 16px rgba(0,0,0,0.18); padding: 6px 8px; z-index: 20; }
-.zoom-float-panel.visible { display: flex; }
-.zoom-float-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #444; font-size: 16px; line-height: 1; }
-.zoom-float-btn:hover { background: #f0f0f0; }
-.zoom-float-value { font-size: 13px; font-weight: 700; color: #222; min-width: 44px; text-align: center; }
-.zoom-float-divider { width: 1px; height: 20px; background: #e5e5e5; margin: 0 2px; }
-.zoom-float-fit { font-size: 12px; font-weight: 600; color: #444; padding: 0 10px; height: 30px; border-radius: 999px; border: none; background: transparent; cursor: pointer; }
-.zoom-float-fit:hover { background: #f0f0f0; }
-.pin { position: absolute; color: #fff; font-weight: 600; border-radius: 4px; white-space: nowrap; pointer-events: auto; cursor: grab; line-height: 1.2; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
-
 .cat-float-panel { position: absolute; left: 16px; top: 16px; display: none; flex-direction: column; align-items: center; gap: 4px; background: #fff; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.18); padding: 8px; z-index: 20; }
 .cat-float-panel.visible { display: flex; }
 .cat-float-btn { width: 48px; height: 48px; border-radius: 10px; border: 2px solid; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; transition: all 0.15s; }
@@ -90,24 +80,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
 .cat-float-icon-btn { width: 48px; height: 48px; border-radius: 10px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 17px; color: #666; }
 .cat-float-icon-btn:hover { background: #f2f2f2; }
 
+.zoom-float-panel { position: absolute; left: 16px; bottom: 16px; display: none; align-items: center; gap: 2px; background: #fff; border-radius: 999px; box-shadow: 0 4px 16px rgba(0,0,0,0.18); padding: 6px 8px; z-index: 20; }
+.zoom-float-panel.visible { display: flex; }
+.zoom-float-btn { width: 30px; height: 30px; border-radius: 50%; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #444; font-size: 16px; line-height: 1; }
+.zoom-float-btn:hover { background: #f0f0f0; }
+.zoom-float-value { font-size: 13px; font-weight: 700; color: #222; min-width: 44px; text-align: center; }
+.zoom-float-divider { width: 1px; height: 20px; background: #e5e5e5; margin: 0 2px; }
+.zoom-float-fit { font-size: 12px; font-weight: 600; color: #444; padding: 0 10px; height: 30px; border-radius: 999px; border: none; background: transparent; cursor: pointer; }
+.zoom-float-fit:hover { background: #f0f0f0; }
+.pin { position: absolute; color: #fff; font-weight: 600; border-radius: 4px; white-space: nowrap; pointer-events: auto; cursor: grab; line-height: 1.2; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+
 /* ---------- Sidebar ---------- */
 .sidebar { width: 300px; flex-shrink: 0; background: #fff; border: 1px solid #ddd; border-radius: 10px; display: flex; flex-direction: column; max-height: calc(100vh - 210px); overflow: hidden; }
 .sidebar-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 8px; }
 .sidebar-header > span:first-child { font-size: 14px; font-weight: 700; color: #222; }
 .sidebar-header-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .sidebar-count { font-size: 11px; color: #888; font-weight: 500; }
-.sidebar-edit-btn { font-size: 11px; color: #185FA5; background: none; border: 1px solid #cddcee; border-radius: 5px; padding: 4px 8px; cursor: pointer; }
-.sidebar-edit-btn:hover { background: #F0F6FC; }
-.pin-row-dept { color: #888; font-size: 11px; }
-.legend { display: flex; gap: 10px; padding: 10px 16px; font-size: 11px; color: #888; border-bottom: 1px solid #f2f2f2; flex-wrap: wrap; }
-.legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 3px; }
-.pin-list { flex: 1; overflow-y: auto; padding: 4px 16px; min-height: 60px; }
-.pin-row { display: flex; align-items: center; gap: 8px; padding: 7px 2px; font-size: 12px; color: #444; border-bottom: 1px solid #f5f5f5; }
-.pin-row-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.pin-row-id { font-weight: 700; }
-.pin-row-fm { color: #185FA5; font-size: 11px; font-weight: 700; background: #EEF3FA; padding: 1px 6px; border-radius: 3px; }
-.pin-row-page { margin-left: auto; color: #aaa; font-size: 11px; }
-.empty-msg { text-align: center; color: #aaa; font-size: 12px; padding: 50px 10px; line-height: 1.9; }
 .sidebar-stats { border-top: 1px solid #eee; padding: 16px; }
 .stats-total-label { font-size: 11px; color: #999; margin-bottom: 4px; }
 .stats-total-value { font-size: 28px; font-weight: 700; color: #1B2540; margin-bottom: 12px; }
@@ -119,8 +107,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
 
 @media (max-width: 800px) {
   .main { flex-direction: column; }
-  .sidebar { width: 100%; max-height: none; }
-  .pin-list { max-height: 220px; }
+  .sidebar { width: 100%; max-height: 260px; }
 }
 
 /* ---------- Modal (その他什器の情報入力で使用) ---------- */
@@ -130,6 +117,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
 /* ---------- Toast ---------- */
 #app-toast { position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 20px); background: #1B2540; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 1200; max-width: 80vw; text-align: center; }
 #app-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.pin-cat-menu { position: fixed; display: none; flex-direction: column; gap: 4px; background: #fff; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); padding: 6px; z-index: 1300; transform: translateX(-50%); min-width: 140px; }
+.pin-cat-menu.visible { display: flex; }
+.pin-cat-menu-label { font-size: 10px; color: #999; padding: 4px 8px 2px; }
+.pin-cat-menu-btn { border: none; border-radius: 6px; padding: 8px 10px; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; text-align: left; }
+.pin-cat-menu-btn:hover { opacity: 0.85; }
+.pin-cat-menu-divider { height: 1px; background: #eee; margin: 2px 4px; }
+.pin-cat-menu-danger { background: #fff !important; color: #C0392B !important; }
+.pin-cat-menu-danger:hover { background: #FCEBEA !important; opacity: 1; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #eee; font-size: 15px; font-weight: 700; color: #222; }
 .modal-close { border: none; background: none; font-size: 20px; cursor: pointer; color: #999; line-height: 1; }
 .modal-close:hover { color: #555; }
@@ -149,6 +145,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
     図面を開く
   </button>
   <input type="file" id="pdf-input" accept="application/pdf" style="display:none" onchange="handlePdfFile(event)">
+
+  <button class="btn btn-open" onclick="saveProgressToFile()" title="現在の入力内容をファイルに保存">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    保存
+  </button>
+  <button class="btn btn-open" onclick="document.getElementById('progress-input').click()" title="保存したファイルから復元">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    読み込み
+  </button>
+  <input type="file" id="progress-input" accept="application/json" style="display:none" onchange="handleProgressFile(event)">
 
   <span id="topbar-empty-status" class="topbar-status status-empty">図面未読み込み</span>
 
@@ -171,7 +177,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
   </div>
 
   <span class="topbar-spacer"></span>
-  <button class="btn btn-image" onclick="exportImage()">
+  <button class="btn btn-image" onclick="openExportPreview()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
     画像エクスポート
   </button>
@@ -276,6 +282,39 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-s
   </div>
 </div>
 
+<div id="export-preview-overlay" class="modal-overlay">
+  <div class="modal" style="width:640px; max-width:92vw;">
+    <div class="modal-header">
+      <span>画像エクスポート プレビュー</span>
+      <button class="modal-close" onclick="cancelExportPreview()">×</button>
+    </div>
+    <div class="modal-body" style="padding:16px;">
+      <div id="export-preview-wrap" style="width:100%; max-height:56vh; overflow:auto; background:#f2f2f2; border-radius:8px; display:flex; align-items:center; justify-content:center; padding:8px;">
+        <img id="export-preview-img" style="max-width:100%; max-height:52vh; box-shadow:0 2px 10px rgba(0,0,0,0.15); background:#fff;">
+      </div>
+      <div style="margin-top:14px; display:flex; align-items:center; gap:10px;">
+        <label style="font-size:12px; color:#666; white-space:nowrap;">図形・文字の大きさ</label>
+        <input type="range" id="export-size-range" min="60" max="200" step="10" value="100" oninput="updateExportPreview(this.value)" style="flex:1;">
+        <span id="export-size-indicator" style="font-size:12px; color:#333; width:44px; text-align:right;">100%</span>
+      </div>
+      <div style="margin-top:6px; font-size:11px; color:#999;">縮尺（画面ズーム <span id="export-zoom-note"></span>%）で出力されます。縮尺自体は左下のズーム操作から変更してください。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="cancelExportPreview()">キャンセル</button>
+      <button class="btn btn-image" onclick="confirmExportDownload()">この内容でダウンロード</button>
+    </div>
+  </div>
+</div>
+
+<div id="pin-cat-menu" class="pin-cat-menu">
+  <div class="pin-cat-menu-label">什器分類を変更</div>
+  <button class="pin-cat-menu-btn" style="background:#185FA5;" onclick="changePinCategory('low')">ローキャビ</button>
+  <button class="pin-cat-menu-btn" style="background:#A32D2D;" onclick="changePinCategory('high')">ハイキャビ</button>
+  <button class="pin-cat-menu-btn" style="background:#BA7517;" onclick="changePinCategory('other')">その他の什器</button>
+  <div class="pin-cat-menu-divider"></div>
+  <button class="pin-cat-menu-btn pin-cat-menu-danger" onclick="deletePin()">このピンを削除</button>
+</div>
+
 <div id="app-toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -292,24 +331,11 @@ let current = 'low';
 let pins = [];
 
 // --- 収納量（ファイルメーター）定義 ---
-// ローキャビ: 0.9m x 3段 = 2.7fm / ハイキャビ: 0.9m x 6段 = 5.4fm / その他什器: 都度入力
+// ローキャビ: 0.9m x 3段 = 2.7fm / ハイキャビ: 0.9m x 6段 = 5.4fm / その他什器: 段数 × 幅(m) で都度算出
 const LOW_FM = 2.7;
 const HIGH_FM = 5.4;
 
-// --- 現状区分 / 対応方針 定義 ---
-const STATE_OPTIONS = [
-  { value: 'a', label: 'a: 空き', color: '#999999' },
-  { value: 'b', label: 'b: 備品（流動あり）', color: '#2E7D32' },
-  { value: 'c', label: 'c: 備品（流動なし）', color: '#B08900' },
-  { value: 'd', label: 'd: 紙（流動あり）', color: '#185FA5' },
-  { value: 'e', label: 'e: 紙（流動なし）', color: '#A32D2D' }
-];
-const ACTION_OPTIONS = ['存続', '削減', '電子化', '移設', '廃棄', '検討中'];
-const STATE_TO_ACTION = { a: '削減', b: '存続', c: '削減', d: '存続', e: '電子化' };
-const ACTION_COLORS = { '存続': '#2E7D32', '削減': '#A32D2D', '電子化': '#185FA5', '移設': '#854F0B', '廃棄': '#555555', '検討中': '#B08900' };
-const UNSET_COLOR = '#d8dbe2';
-
-// ローキャビは3段、ハイキャビは6段固定。その他什器は段数を都度入力する。現状区分(a〜e)は段単位で選択する
+// ローキャビは3段、ハイキャビは6段固定。その他什器は段数を都度入力する
 const LOW_LEVELS = 3;
 const HIGH_LEVELS = 6;
 
@@ -322,14 +348,6 @@ function getLevelCount(cat) {
 function makeLevels(cat, count) {
   const n = count && count > 0 ? count : getLevelCount(cat);
   return Array.from({ length: n }, () => ({ state: '', action: '' }));
-}
-
-function getMaxLevelsInUse() {
-  return pins.reduce((max, p) => Math.max(max, (p.levels || []).length), 1);
-}
-
-function stateInfo(value) {
-  return STATE_OPTIONS.find(s => s.value === value) || null;
 }
 
 // --- PDF state ---
@@ -378,6 +396,8 @@ function getLocalPercent(clientX, clientY) {
 }
 
 let pendingOtherClick = null;
+let pendingCategoryChangeIdx = null; // 「その他」への分類変更で入力待ちのピン番号
+let pinSeq = 0; // カテゴリを問わない連番
 
 container.addEventListener('click', function(e) {
   if (e.target.closest('.cat-float-panel, .zoom-float-panel')) return;
@@ -386,7 +406,11 @@ container.addEventListener('click', function(e) {
     return;
   }
   if (pinDragged) { pinDragged = false; return; }
-  if (e.target.closest('.pin')) return;
+  const pinEl = e.target.closest('.pin');
+  if (pinEl) {
+    openPinCategoryMenu(parseInt(pinEl.dataset.idx, 10), pinEl);
+    return;
+  }
   if (e.shiftKey || panDragged) { panDragged = false; return; }
   const { x: xPct, y: yPct } = getLocalPercent(e.clientX, e.clientY);
   if (xPct < 0 || xPct > 100 || yPct < 0 || yPct > 100) return;
@@ -409,12 +433,12 @@ container.addEventListener('click', function(e) {
 });
 
 function placePin(cat, xPct, yPct, fm, levels, length) {
-  cats[cat].count++;
-  const num = String(cats[cat].count).padStart(3, '0');
-  const id = cats[cat].prefix + num;
-  pins.push({ cat, id, xPct, yPct, num: cats[cat].count, context: currentContext(), page: currentPage, dept: '', fm, levels, photo: null, length: cat === 'other' ? (length || 0) : 0 });
+  pinSeq++;
+  const id = String(pinSeq).padStart(3, '0');
+  pins.push({ cat, id, xPct, yPct, seq: pinSeq, context: currentContext(), page: currentPage, dept: '', fm, levels, photo: null, length: cat === 'other' ? (length || 0) : 0 });
   renderPins();
   updateStats();
+  autoSave();
 }
 
 function updateOtherFmPreview() {
@@ -425,11 +449,27 @@ function updateOtherFmPreview() {
 }
 
 function confirmOtherInput() {
-  if (!pendingOtherClick) return;
   let lv = parseInt(document.getElementById('other-levels-input').value, 10);
   if (isNaN(lv) || lv < 1) lv = 1;
   const length = parseFloat(document.getElementById('other-length-input').value) || 0;
   const fm = +(lv * length).toFixed(2);
+
+  if (pendingCategoryChangeIdx !== null) {
+    const p = pins[pendingCategoryChangeIdx];
+    p.cat = 'other';
+    p.levels = makeLevels('other', lv);
+    p.length = length;
+    p.fm = fm;
+    pendingCategoryChangeIdx = null;
+    document.getElementById('other-input-overlay').style.display = 'none';
+    renderPins();
+    updateStats();
+    autoSave();
+    showToast('什器分類を「その他」に変更しました。');
+    return;
+  }
+
+  if (!pendingOtherClick) return;
   placePin('other', pendingOtherClick.xPct, pendingOtherClick.yPct, fm, makeLevels('other', lv), length);
   pendingOtherClick = null;
   document.getElementById('other-input-overlay').style.display = 'none';
@@ -437,8 +477,82 @@ function confirmOtherInput() {
 
 function cancelOtherInput() {
   pendingOtherClick = null;
+  pendingCategoryChangeIdx = null;
   document.getElementById('other-input-overlay').style.display = 'none';
 }
+
+// --- 什器分類の変更（配置後に変更できるようにする） ---
+let editingPinIdx = null;
+
+function openPinCategoryMenu(idx, pinEl) {
+  editingPinIdx = idx;
+  const menu = document.getElementById('pin-cat-menu');
+  const rect = pinEl.getBoundingClientRect();
+  menu.style.left = (rect.left + rect.width / 2) + 'px';
+  menu.style.top = (rect.bottom + 6) + 'px';
+  menu.classList.add('visible');
+}
+
+function closePinCategoryMenu() {
+  editingPinIdx = null;
+  document.getElementById('pin-cat-menu').classList.remove('visible');
+}
+
+function changePinCategory(newCat) {
+  if (editingPinIdx === null) return;
+  const idx = editingPinIdx;
+  const p = pins[idx];
+  closePinCategoryMenu();
+  if (p.cat === newCat) return;
+
+  if (newCat === 'other') {
+    pendingCategoryChangeIdx = idx;
+    document.getElementById('other-levels-input').value = '1';
+    document.getElementById('other-length-input').value = '';
+    document.getElementById('other-input-overlay').style.display = 'flex';
+    updateOtherFmPreview();
+    setTimeout(function() {
+      const el = document.getElementById('other-levels-input');
+      if (el) { el.focus(); el.select(); }
+    }, 0);
+    return;
+  }
+
+  p.cat = newCat;
+  if (newCat === 'low') { p.fm = LOW_FM; p.levels = makeLevels('low'); p.length = 0; }
+  else { p.fm = HIGH_FM; p.levels = makeLevels('high'); p.length = 0; }
+  renderPins();
+  updateStats();
+  autoSave();
+  showToast('什器分類を「' + cats[newCat].label + '」に変更しました。');
+}
+
+function renumberPins() {
+  pins.forEach(function(p, i) {
+    p.seq = i + 1;
+    p.id = String(i + 1).padStart(3, '0');
+  });
+  pinSeq = pins.length;
+}
+
+function deletePin() {
+  if (editingPinIdx === null) return;
+  const idx = editingPinIdx;
+  closePinCategoryMenu();
+  pins.splice(idx, 1);
+  renumberPins();
+  renderPins();
+  updateStats();
+  autoSave();
+  showToast('ピンを削除しました。');
+}
+
+document.addEventListener('mousedown', function(e) {
+  const menu = document.getElementById('pin-cat-menu');
+  if (!menu.classList.contains('visible')) return;
+  if (e.target.closest('#pin-cat-menu') || e.target.closest('.pin')) return;
+  closePinCategoryMenu();
+});
 
 document.getElementById('other-input-overlay').addEventListener('click', function(e) {
   if (e.target.id === 'other-input-overlay') cancelOtherInput();
@@ -478,6 +592,7 @@ let panDragged = false; // シフト+左ドラッグがピン配置クリック�
 // --- 配置済みピンのドラッグ移動 ---
 let draggingPinIdx = null;
 let pinDragged = false; // ピンドラッグがピン配置クリックに誤変換されないようにするフラグ
+let pinDragStartX = 0, pinDragStartY = 0;
 
 container.addEventListener('mousedown', function(e) {
   if (!usingPdf) return;
@@ -489,6 +604,8 @@ container.addEventListener('mousedown', function(e) {
     e.stopPropagation();
     draggingPinIdx = parseInt(pinEl.dataset.idx, 10);
     pinDragged = false;
+    pinDragStartX = e.clientX;
+    pinDragStartY = e.clientY;
     container.classList.add('panning');
     return;
   }
@@ -549,11 +666,11 @@ function updateAlignGuides(activeIdx) {
 
 window.addEventListener('mousemove', function(e) {
   if (draggingPinIdx !== null) {
+    if (Math.abs(e.clientX - pinDragStartX) > 3 || Math.abs(e.clientY - pinDragStartY) > 3) pinDragged = true;
     const { x: xPct, y: yPct } = getLocalPercent(e.clientX, e.clientY);
     pins[draggingPinIdx].xPct = Math.min(100, Math.max(0, xPct));
     pins[draggingPinIdx].yPct = Math.min(100, Math.max(0, yPct));
     updateAlignGuides(draggingPinIdx);
-    pinDragged = true;
     renderPins();
     return;
   }
@@ -572,6 +689,7 @@ window.addEventListener('mouseup', function(e) {
     container.classList.remove('panning');
     updateAlignGuides(null);
     updateStats();
+    autoSave();
     return;
   }
   if ((e.button === 1 || e.button === 0) && isPanning) {
@@ -627,10 +745,13 @@ function renderPins() {
 }
 
 function updateStats() {
-  document.getElementById('count-low').textContent = cats.low.count;
-  document.getElementById('count-high').textContent = cats.high.count;
-  document.getElementById('count-other').textContent = cats.other.count;
-  const total = cats.low.count + cats.high.count + cats.other.count;
+  const countLow = pins.filter(p => p.cat === 'low').length;
+  const countHigh = pins.filter(p => p.cat === 'high').length;
+  const countOther = pins.filter(p => p.cat === 'other').length;
+  document.getElementById('count-low').textContent = countLow;
+  document.getElementById('count-high').textContent = countHigh;
+  document.getElementById('count-other').textContent = countOther;
+  const total = countLow + countHigh + countOther;
   document.getElementById('count-total').textContent = total;
   document.getElementById('sidebar-count').textContent = total + '件';
 
@@ -642,21 +763,6 @@ function updateStats() {
   document.getElementById('fm-high').textContent = fmHigh.toFixed(1);
   document.getElementById('fm-other').textContent = fmOther.toFixed(1);
   document.getElementById('fm-total').textContent = (fmLow + fmHigh + fmOther).toFixed(1);
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, function(ch) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
-  });
-}
-
-function tryPrint() {
-  try {
-    window.print();
-  } catch (err) {
-    console.error(err);
-    showToast('この環境では印刷ダイアログを開けませんでした。ブラウザで直接開いてお試しください。');
-  }
 }
 
 function showToast(msg) {
@@ -671,16 +777,18 @@ function showToast(msg) {
 function undoLast() {
   if (!pins.length) return;
   const last = pins.pop();
-  cats[last.cat].count--;
+  if (last.seq === pinSeq) pinSeq--;
   renderPins();
   updateStats();
+  autoSave();
 }
 
 function clearAll() {
   pins = [];
-  Object.values(cats).forEach(c => c.count = 0);
+  pinSeq = 0;
   renderPins();
   updateStats();
+  autoSave();
 }
 
 // --- PDF loading ---
@@ -722,6 +830,15 @@ function loadPdfFile(file) {
       document.getElementById('plan-inner').classList.remove('fill');
       document.getElementById('plan-container').classList.remove('is-empty');
       status.textContent = '';
+
+      if (pendingAutoRestore) {
+        const restored = applySnapshot(pendingAutoRestore);
+        if (restored) {
+          showToast('前回の保存データを復元しました（' + pendingAutoRestore.pins.length + '件）。');
+        }
+        pendingAutoRestore = null;
+      }
+
       renderPage(currentPage);
     }).catch(function(err) {
       console.error(err);
@@ -906,6 +1023,106 @@ function resetPdf() {
   renderPins();
 }
 
+// --- 途中保存（自動保存 / 手動ファイル保存・読み込み） ---
+const AUTOSAVE_KEY = 'shukuno_survey_autosave_v1';
+let pendingAutoRestore = null;
+
+function snapshotState() {
+  return {
+    version: 2,
+    pdfFileName: pdfFileName || '',
+    savedAt: new Date().toISOString(),
+    pinSeq: pinSeq,
+    pins: pins
+  };
+}
+
+function autoSave() {
+  try {
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snapshotState()));
+  } catch (err) {
+    console.warn('自動保存に失敗しました', err);
+  }
+}
+
+function loadAutoSave() {
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (err) {
+    return null;
+  }
+}
+
+function clearAutoSave() {
+  try { localStorage.removeItem(AUTOSAVE_KEY); } catch (err) { /* noop */ }
+}
+
+function applySnapshot(data) {
+  if (!data || !Array.isArray(data.pins)) {
+    showToast('保存データの形式が正しくありません。');
+    return false;
+  }
+  pins = data.pins;
+  if (typeof data.pinSeq === 'number') {
+    pinSeq = data.pinSeq;
+  } else {
+    // 旧形式の保存データ（連番情報を持たない）はpinsの件数から推定する
+    pinSeq = pins.reduce((max, p) => Math.max(max, p.seq || 0), 0) || pins.length;
+    pins.forEach((p, i) => { if (!p.id || !p.seq) { p.seq = i + 1; p.id = String(i + 1).padStart(3, '0'); } });
+  }
+  renderPins();
+  updateStats();
+  autoSave();
+  return true;
+}
+
+function saveProgressToFile() {
+  if (!usingPdf) {
+    showToast('保存するにはまずPDF図面を開いてください。');
+    return;
+  }
+  const data = snapshotState();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  a.href = url;
+  a.download = '収納量調査_保存データ_' + y + m + d + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('保存ファイルを書き出しました（' + data.pins.length + '件）。');
+}
+
+function handleProgressFile(e) {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  if (!usingPdf) {
+    showToast('読み込むにはまずPDF図面を開いてください。');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function() {
+    try {
+      const data = JSON.parse(this.result);
+      if (applySnapshot(data)) {
+        showToast('保存データを読み込みました（' + (data.pins ? data.pins.length : 0) + '件）。');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('ファイルの読み込みに失敗しました。JSON形式を確認してください。');
+    }
+  };
+  reader.readAsText(file);
+}
+
 // --- Image export ---
 function roundRectPath(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -917,13 +1134,12 @@ function roundRectPath(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function exportImage() {
-  if (!usingPdf) {
-    showToast('図面が読み込まれていません。先にPDF図面を開いてください。');
-    return;
-  }
+let exportPreviewSizePct = 100; // プレビュー画面で調整するプロット図形・文字の大きさ（%）
+
+function renderExportCanvas(sizeScalePct) {
+  if (!usingPdf) return null;
   const srcCanvas = document.getElementById('pdf-canvas');
-  if (!srcCanvas) return;
+  if (!srcCanvas) return null;
 
   const zoomScale = zoom / 100; // 現在選択中の縮尺（画面のズーム設定）をそのまま出力に反映
   const srcW = srcCanvas.width;
@@ -950,8 +1166,9 @@ function exportImage() {
   ctx.restore();
 
   // ピンのサイズは画面表示時と同様、縮尺(zoomScale)によらず一定の見た目サイズを維持する
+  // sizeScalePct はプレビュー画面のスライダーで調整可能（画面表示上のピンサイズとは独立）
   const resScale = baseWidthPx ? (srcW / baseWidthPx) : 1;
-  const sizeScale = pinSizePct / 100;
+  const sizeScale = (sizeScalePct || 100) / 100;
   const fontSize = Math.round(11 * sizeScale * resScale);
   const padX = 7 * sizeScale * resScale;
   const padY = 3 * sizeScale * resScale;
@@ -961,7 +1178,9 @@ function exportImage() {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  pins.filter(p => p.context === currentContext()).forEach(p => {
+  const pagePins = pins.filter(p => p.context === currentContext());
+
+  pagePins.forEach(p => {
     let ox, oy;
     if (rot === 90) { ox = 100 - p.yPct; oy = p.xPct; }
     else if (rot === 180) { ox = 100 - p.xPct; oy = 100 - p.yPct; }
@@ -983,13 +1202,74 @@ function exportImage() {
     ctx.fillText(p.id, px, py + fontSize * 0.04);
   });
 
+  // 配置済み什器の個数を右上にバッジ表示
+  const countLow = pagePins.filter(p => p.cat === 'low').length;
+  const countHigh = pagePins.filter(p => p.cat === 'high').length;
+  const countOther = pagePins.filter(p => p.cat === 'other').length;
+  const badgeText = '配置数: ' + pagePins.length + '件（ローキャビ' + countLow + '／ハイキャビ' + countHigh + '／その他' + countOther + '）';
+  const badgeFontSize = Math.round(15 * sizeScale * resScale);
+  ctx.font = '700 ' + badgeFontSize + 'px -apple-system, "Segoe UI", Arial, sans-serif';
+  const badgePadX = 12 * resScale;
+  const badgePadY = 7 * resScale;
+  const badgeMargin = 14 * resScale;
+  const badgeTextW = ctx.measureText(badgeText).width;
+  const badgeBoxW = badgeTextW + badgePadX * 2;
+  const badgeBoxH = badgeFontSize + badgePadY * 2;
+  const badgeX = outW - badgeBoxW - badgeMargin;
+  const badgeY = badgeMargin;
+
+  ctx.fillStyle = 'rgba(27, 37, 64, 0.85)';
+  roundRectPath(ctx, badgeX, badgeY, badgeBoxW, badgeBoxH, 8 * resScale);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(badgeText, badgeX + badgeBoxW / 2, badgeY + badgeBoxH / 2 + badgeFontSize * 0.04);
+
+  return out;
+}
+
+function openExportPreview() {
+  if (!usingPdf) {
+    showToast('図面が読み込まれていません。先にPDF図面を開いてください。');
+    return;
+  }
+  exportPreviewSizePct = pinSizePct;
+  document.getElementById('export-size-range').value = exportPreviewSizePct;
+  document.getElementById('export-size-indicator').textContent = exportPreviewSizePct + '%';
+  document.getElementById('export-zoom-note').textContent = zoom;
+  refreshExportPreviewImage();
+  document.getElementById('export-preview-overlay').style.display = 'flex';
+}
+
+function refreshExportPreviewImage() {
+  const canvas = renderExportCanvas(exportPreviewSizePct);
+  if (!canvas) return;
+  document.getElementById('export-preview-img').src = canvas.toDataURL('image/png');
+}
+
+function updateExportPreview(val) {
+  exportPreviewSizePct = parseInt(val, 10) || 100;
+  document.getElementById('export-size-indicator').textContent = exportPreviewSizePct + '%';
+  refreshExportPreviewImage();
+}
+
+function cancelExportPreview() {
+  document.getElementById('export-preview-overlay').style.display = 'none';
+}
+
+function confirmExportDownload() {
+  const canvas = renderExportCanvas(exportPreviewSizePct);
+  if (!canvas) return;
+
   const today = new Date();
   const y = today.getFullYear();
   const m = String(today.getMonth() + 1).padStart(2, '0');
   const d = String(today.getDate()).padStart(2, '0');
   const filename = '収納量調査_図面_p' + currentPage + '_' + zoom + '%_' + y + m + d + '.png';
 
-  out.toBlob(function(blob) {
+  canvas.toBlob(function(blob) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -998,9 +1278,14 @@ function exportImage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('縮尺' + zoom + '%で画像を出力しました。左下のズーム操作で縮尺を変更してから再度出力できます。');
+    showToast('縮尺' + zoom + '%で画像を出力しました。');
+    cancelExportPreview();
   }, 'image/png');
 }
+
+document.getElementById('export-preview-overlay').addEventListener('click', function(e) {
+  if (e.target.id === 'export-preview-overlay') cancelExportPreview();
+});
 
 // --- Excel export ---
 function exportToExcel() {
@@ -1027,14 +1312,15 @@ function exportToExcel() {
   }));
 
   const fmByCat = { low: 0, high: 0, other: 0 };
-  pins.forEach(p => { fmByCat[p.cat] += parseFloat(p.fm) || 0; });
+  const countByCat = { low: 0, high: 0, other: 0 };
+  pins.forEach(p => { fmByCat[p.cat] += parseFloat(p.fm) || 0; countByCat[p.cat]++; });
   const fmTotalAll = fmByCat.low + fmByCat.high + fmByCat.other;
 
   const summaryRows = [
-    { 'カテゴリ': cats.low.label, '数量': cats.low.count, '収納量(fm)': Math.round(fmByCat.low * 10) / 10 },
-    { 'カテゴリ': cats.high.label, '数量': cats.high.count, '収納量(fm)': Math.round(fmByCat.high * 10) / 10 },
-    { 'カテゴリ': cats.other.label, '数量': cats.other.count, '収納量(fm)': Math.round(fmByCat.other * 10) / 10 },
-    { 'カテゴリ': '合計', '数量': cats.low.count + cats.high.count + cats.other.count, '収納量(fm)': Math.round(fmTotalAll * 10) / 10 }
+    { 'カテゴリ': cats.low.label, '数量': countByCat.low, '収納量(fm)': Math.round(fmByCat.low * 10) / 10 },
+    { 'カテゴリ': cats.high.label, '数量': countByCat.high, '収納量(fm)': Math.round(fmByCat.high * 10) / 10 },
+    { 'カテゴリ': cats.other.label, '数量': countByCat.other, '収納量(fm)': Math.round(fmByCat.other * 10) / 10 },
+    { 'カテゴリ': '合計', '数量': countByCat.low + countByCat.high + countByCat.other, '収納量(fm)': Math.round(fmTotalAll * 10) / 10 }
   ];
 
   const wb = XLSX.utils.book_new();
@@ -1053,6 +1339,15 @@ function exportToExcel() {
   const d = String(today.getDate()).padStart(2, '0');
   XLSX.writeFile(wb, '収納量調査_ピン一覧_' + y + m + d + '.xlsx');
 }
+
+// --- 初期化: 前回の自動保存データがあれば通知 ---
+(function initAutoRestoreCheck() {
+  const saved = loadAutoSave();
+  if (saved && Array.isArray(saved.pins) && saved.pins.length) {
+    pendingAutoRestore = saved;
+    showToast('前回の保存データ（' + saved.pins.length + '件）があります。同じPDFを開くと自動的に復元されます。');
+  }
+})();
 
 selectCat('low');
 </script>
