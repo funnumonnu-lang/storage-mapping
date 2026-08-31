@@ -126,14 +126,40 @@
   .pin-cat-menu-divider { height: 1px; background: #eee; margin: 2px 4px; }
   .pin-cat-menu-danger { background: #fff !important; color: #C0392B !important; }
   .pin-cat-menu-danger:hover { background: #FCEBEA !important; opacity: 1; }
+
+  /* ---------- Login gate ---------- */
+  #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg,#1B2540,#233158); display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
+  #login-overlay.hidden { display: none; }
+  .login-card { background: #fff; border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.35); padding: 32px 30px; width: 320px; max-width: 100%; text-align: center; }
+  .login-badge { width: 48px; height: 48px; border-radius: 10px; background: linear-gradient(135deg,#3A7BD5,#185FA5); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #fff; margin: 0 auto 14px; }
+  .login-title { font-size: 15px; font-weight: 800; color: #1B2540; margin-bottom: 4px; }
+  .login-sub { font-size: 11.5px; color: #8B93A8; margin-bottom: 18px; }
+  .login-input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 7px; font-size: 14px; margin-bottom: 10px; text-align: center; letter-spacing: 1px; }
+  .login-input:focus { outline: none; border-color: #3A7BD5; }
+  .login-btn { width: 100%; padding: 10px; border: none; border-radius: 7px; background: #3A7BD5; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .login-btn:hover { filter: brightness(1.1); }
+  .login-error { font-size: 11.5px; color: #C0392B; margin-top: 8px; min-height: 14px; }
+  .login-note { font-size: 10.5px; color: #B7BEDA; margin-top: 14px; line-height: 1.5; }
 </style>
 </head>
 <body>
 
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="login-badge">収</div>
+    <div class="login-title">収納量調査</div>
+    <div class="login-sub">パスワードを入力してください</div>
+    <input type="password" id="login-password" class="login-input" placeholder="パスワード" autocomplete="off">
+    <button class="login-btn" onclick="attemptLogin()">ログイン</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+
 <header class="topbar">
   <div class="brand">
     <div class="brand-badge">収</div>
-    収納量調査 什器ピン打ちMock
+    収納量調査
   </div>
 
   <button class="btn btn-primary" onclick="document.getElementById('pdf-input').click()">
@@ -1241,6 +1267,41 @@ function exportToExcel() {
   const d = String(today.getDate()).padStart(2, '0');
   XLSX.writeFile(wb, '収納量調査_ピン一覧_' + y + m + d + '.xlsx');
 }
+
+// ---------- ログインゲート（簡易パスワード。閲覧防止用の目隠しであり、厳密なセキュリティではありません） ----------
+const LOGIN_PASSWORD = 'storart2026';
+const LOGIN_SESSION_KEY = 'storage_mapping_authed';
+
+function attemptLogin() {
+  const input = document.getElementById('login-password');
+  const errEl = document.getElementById('login-error');
+  if (input.value === LOGIN_PASSWORD) {
+    try { sessionStorage.setItem(LOGIN_SESSION_KEY, '1'); } catch (e) {}
+    document.getElementById('login-overlay').classList.add('hidden');
+    errEl.textContent = '';
+  } else {
+    errEl.textContent = 'パスワードが違います。';
+    input.value = '';
+    input.focus();
+  }
+}
+
+document.getElementById('login-password').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') attemptLogin();
+});
+
+(function initLoginGate() {
+  let authed = false;
+  try { authed = sessionStorage.getItem(LOGIN_SESSION_KEY) === '1'; } catch (e) {}
+  if (authed) {
+    document.getElementById('login-overlay').classList.add('hidden');
+  } else {
+    setTimeout(function() {
+      const el = document.getElementById('login-password');
+      if (el) el.focus();
+    }, 100);
+  }
+})();
 
 // ---------- 初期化: 前回の自動保存データがあれば通知 ----------
 (function initAutoRestoreCheck() {
