@@ -79,6 +79,18 @@
   .cat-float-icon-btn { display: flex; align-items: center; gap: 6px; border: none; background: #F4F6FA; border-radius: 8px; padding: 7px 10px; cursor: pointer; font-size: 11.5px; font-weight: 600; color: #666; }
   .cat-float-icon-btn:hover { background: #E8EBF2; }
 
+  .cat-float-no { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; font-weight: 600; color: #666; padding: 2px 4px; }
+  .cat-float-no input { width: 64px; padding: 5px 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 12.5px; text-align: center; }
+  .cat-float-no input:focus { outline: none; border-color: #3A7BD5; }
+  .cat-float-icon-btn.active { background: #FFF3C4; color: #7A5B00; box-shadow: inset 0 0 0 2px #E6B800; }
+  .sel-float-panel { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.97); border-radius: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.22); padding: 7px 10px; z-index: 22; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 200px); }
+  .sel-float-panel.visible { display: flex; }
+  .sel-count { font-size: 12px; font-weight: 800; color: #1B2540; margin-right: 4px; white-space: nowrap; }
+  .sel-btn { border: none; border-radius: 6px; padding: 6px 10px; font-size: 11.5px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; }
+  .sel-btn:hover { filter: brightness(1.1); }
+  .sel-btn-ghost { background: #F0F2F7; color: #555; }
+  #select-box { position: absolute; display: none; border: 1.5px dashed #E6B800; background: rgba(255,212,0,0.15); pointer-events: none; z-index: 15; }
+  .pin.selected .pin-box { outline: 2px solid #FFC400; outline-offset: 2px; }
   .zoom-float-panel { position: absolute; bottom: 14px; left: 14px; display: none; align-items: center; gap: 4px; background: rgba(255,255,255,0.97); border-radius: 30px; box-shadow: 0 4px 18px rgba(0,0,0,0.18); padding: 5px 8px; z-index: 20; }
   .zoom-float-panel.visible { display: flex; }
   .zoom-float-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: #F4F6FA; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: #333; }
@@ -241,10 +253,26 @@
         <span class="cat-float-label">その他什器</span>
       </button>
       <div class="cat-float-divider"></div>
+      <label class="cat-float-no">
+        <span>次の番号</span>
+        <input type="number" id="next-no-input" min="1" step="1" value="1" oninput="setNextNo(this.value)">
+      </label>
+      <div class="cat-float-divider"></div>
+      <button class="cat-float-icon-btn" id="select-mode-btn" onclick="toggleSelectMode()">▭ 範囲選択</button>
       <button class="cat-float-icon-btn" onclick="undoLast()">↩ 取り消し</button>
       <button class="cat-float-icon-btn" onclick="clearAll()">🗑 全消去</button>
     </div>
 
+    <div id="select-box"></div>
+    <div class="sel-float-panel" id="sel-float-panel">
+      <span class="sel-count" id="sel-count">0件選択中</span>
+      <button class="sel-btn" style="background:#2E8B6E;" onclick="rotateSelected()">90°回転</button>
+      <button class="sel-btn" style="background:#185FA5;" onclick="changeSelectedCategory('low')">ローキャビ</button>
+      <button class="sel-btn" style="background:#A32D2D;" onclick="changeSelectedCategory('high')">ハイキャビ</button>
+      <button class="sel-btn" style="background:#BA7517;" onclick="changeSelectedCategory('other')">その他</button>
+      <button class="sel-btn" style="background:#C0392B;" onclick="deleteSelected()">削除</button>
+      <button class="sel-btn sel-btn-ghost" onclick="clearSelection()">選択解除</button>
+    </div>
     <div class="zoom-float-panel" id="zoom-float-panel">
       <button class="zoom-float-btn" onclick="changeZoom(-10)">−</button>
       <span class="zoom-float-indicator" id="zoom-indicator">100%</span>
@@ -326,15 +354,54 @@
   <button class="pin-cat-menu-btn" style="background:#A32D2D;" onclick="changePinCategory('high')">ハイキャビ</button>
   <button class="pin-cat-menu-btn" style="background:#BA7517;" onclick="changePinCategory('other')">その他の什器</button>
   <div class="pin-cat-menu-divider"></div>
+  <button class="pin-cat-menu-btn" style="background:#2E8B6E;" onclick="rotatePin()">図形・数字を90°回転</button>
+  <button class="pin-cat-menu-btn" style="background:#4A5A8A;" onclick="insertAfterPin()">この次に番号を挿入</button>
   <button class="pin-cat-menu-btn pin-cat-menu-danger" onclick="deletePin()">このピンを削除</button>
 </div>
 
 <div id="app-toast"></div>
 
+<script>
+// ---------- ログインゲート（簡易パスワード。閲覧防止用の目隠しであり、厳密なセキュリティではありません） ----------
+const LOGIN_PASSWORD = 'storart2026';
+const LOGIN_SESSION_KEY = 'storage_mapping_authed';
+
+function attemptLogin() {
+  const input = document.getElementById('login-password');
+  const errEl = document.getElementById('login-error');
+  if (input.value === LOGIN_PASSWORD) {
+    try { sessionStorage.setItem(LOGIN_SESSION_KEY, '1'); } catch (e) {}
+    document.getElementById('login-overlay').classList.add('hidden');
+    errEl.textContent = '';
+  } else {
+    errEl.textContent = 'パスワードが違います。';
+    input.value = '';
+    input.focus();
+  }
+}
+
+document.getElementById('login-password').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') attemptLogin();
+});
+
+(function initLoginGate() {
+  let authed = false;
+  try { authed = sessionStorage.getItem(LOGIN_SESSION_KEY) === '1'; } catch (e) {}
+  if (authed) {
+    document.getElementById('login-overlay').classList.add('hidden');
+  } else {
+    setTimeout(function() {
+      const el = document.getElementById('login-password');
+      if (el) el.focus();
+    }, 100);
+  }
+})();
+
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+if (typeof pdfjsLib !== 'undefined') pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 // ---------- カテゴリ定義 ----------
 const cats = {
@@ -405,21 +472,99 @@ function getLocalPercent(clientX, clientY) {
 
 let pendingOtherClick = null;
 let pendingCategoryChangeIdx = null; // 「その他」への分類変更で入力待ちのピン番号
-let pinSeq = 0; // カテゴリを問わない連番
+let nextNo = 1; // 次に配置するピンの番号（任意の番号から開始・途中挿入が可能）
+function padNo(n) { return String(n).padStart(3, '0'); }
+function setNextNo(n) {
+  nextNo = Math.max(1, parseInt(n, 10) || 1);
+  const el = document.getElementById('next-no-input');
+  if (el) el.value = nextNo;
+}
+// ---------- 範囲選択 ----------
+const selection = new Set();
+let selectMode = false;
+let marqueeActive = false, marqueeDragged = false;
+let marqueeStartX = 0, marqueeStartY = 0;
+let pendingGroupChange = false;
+
+function clearSelection() { selection.clear(); renderPins(); }
+function updateSelPanel() {
+  const panel = document.getElementById('sel-float-panel');
+  if (!panel) return;
+  panel.classList.toggle('visible', selection.size > 0);
+  document.getElementById('sel-count').textContent = selection.size + '件選択中';
+}
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  document.getElementById('select-mode-btn').classList.toggle('active', selectMode);
+  showToast(selectMode ? '範囲選択モード: 図面上をドラッグして囲んでください。' : '範囲選択モードを終了しました。');
+}
+function rotateSelected() {
+  selection.forEach(p => { p.rot = ((p.rot || 0) + 90) % 360; });
+  renderPins(); autoSave();
+}
+function deleteSelected() {
+  if (!selection.size) return;
+  if (!confirm(selection.size + '件のピンを削除します。番号は自動で詰めます。よろしいですか？')) return;
+  Array.from(selection).forEach(p => { const i = pins.indexOf(p); if (i >= 0) removePinAt(i); });
+  selection.clear();
+  renderPins(); updateStats(); autoSave();
+  showToast('選択したピンを削除しました。');
+}
+function changeSelectedCategory(newCat) {
+  if (!selection.size) return;
+  if (newCat === 'other') {
+    pendingGroupChange = true;
+    document.getElementById('other-levels-input').value = '1';
+    document.getElementById('other-length-input').value = '';
+    document.getElementById('other-input-overlay').style.display = 'flex';
+    updateOtherFmPreview();
+    return;
+  }
+  selection.forEach(p => {
+    p.cat = newCat;
+    p.fm = newCat === 'low' ? LOW_FM : HIGH_FM;
+    p.levels = makeLevels(newCat);
+    p.length = 0;
+  });
+  renderPins(); updateStats(); autoSave();
+  showToast('選択したピンの分類を「' + cats[newCat].label + '」に変更しました。');
+}
+document.addEventListener('keydown', function(e) {
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+  if (e.key === 'Escape') {
+    if (selectMode) toggleSelectMode();
+    if (selection.size) clearSelection();
+  } else if ((e.key === 'Delete' || e.key === 'Backspace') && selection.size) {
+    e.preventDefault();
+    deleteSelected();
+  }
+});
+
+function removePinAt(idx) {
+  selection.delete(pins[idx]);
+  const no = pins[idx].no;
+  pins.splice(idx, 1);
+  pins.forEach(p => { if (p.no > no) { p.no--; p.id = padNo(p.no); } });
+  if (nextNo > no) setNextNo(nextNo - 1);
+}
 
 container.addEventListener('click', function(e) {
-  if (e.target.closest('.cat-float-panel, .zoom-float-panel')) return;
+  if (e.target.closest('.cat-float-panel, .zoom-float-panel, .sel-float-panel')) return;
   if (!usingPdf) {
     document.getElementById('pdf-input').click();
     return;
   }
   if (pinDragged) { pinDragged = false; return; }
+  if (marqueeDragged) { marqueeDragged = false; return; }
   const pinEl = e.target.closest('.pin');
   if (pinEl) {
+    if (!selection.has(pins[parseInt(pinEl.dataset.idx, 10)])) { if (selection.size) clearSelection(); }
     openPinCategoryMenu(parseInt(pinEl.dataset.idx, 10), pinEl);
     return;
   }
   if (e.shiftKey || panDragged) { panDragged = false; return; }
+  if (selectMode || e.ctrlKey || e.metaKey || selection.size) { clearSelection(); return; }
   const { x: xPct, y: yPct } = getLocalPercent(e.clientX, e.clientY);
   if (xPct < 0 || xPct > 100 || yPct < 0 || yPct > 100) return;
 
@@ -441,9 +586,11 @@ container.addEventListener('click', function(e) {
 });
 
 function placePin(cat, xPct, yPct, fm, levels, length) {
-  pinSeq++;
-  const id = String(pinSeq).padStart(3, '0');
-  pins.push({ cat, id, xPct, yPct, seq: pinSeq, context: currentContext(), page: currentPage, dept: '', fm, levels, photo: null, length: cat === 'other' ? (length || 0) : 0 });
+  const no = nextNo;
+  // 既存の同番号以降は1つ後ろへずらす（途中への追加）
+  pins.forEach(p => { if (p.no >= no) { p.no++; p.id = padNo(p.no); } });
+  pins.push({ cat, id: padNo(no), no, xPct, yPct, context: currentContext(), page: currentPage, dept: '', fm, levels, photo: null, length: cat === 'other' ? (length || 0) : 0 });
+  setNextNo(no + 1);
   renderPins();
   updateStats();
   autoSave();
@@ -462,6 +609,15 @@ function confirmOtherInput() {
   if (isNaN(lv) || lv < 1) lv = 1;
   const length = parseFloat(document.getElementById('other-length-input').value) || 0;
   const fm = +(lv * length).toFixed(2);
+
+  if (pendingGroupChange) {
+    selection.forEach(p => { p.cat = 'other'; p.levels = makeLevels('other', lv); p.length = length; p.fm = fm; });
+    pendingGroupChange = false;
+    document.getElementById('other-input-overlay').style.display = 'none';
+    renderPins(); updateStats(); autoSave();
+    showToast('選択したピンの分類を「その他」に変更しました。');
+    return;
+  }
 
   if (pendingCategoryChangeIdx !== null) {
     const p = pins[pendingCategoryChangeIdx];
@@ -485,6 +641,7 @@ function confirmOtherInput() {
 }
 
 function cancelOtherInput() {
+  pendingGroupChange = false;
   pendingOtherClick = null;
   pendingCategoryChangeIdx = null;
   document.getElementById('other-input-overlay').style.display = 'none';
@@ -540,24 +697,32 @@ function changePinCategory(newCat) {
   showToast('什器分類を「' + cats[newCat].label + '」に変更しました。');
 }
 
-function renumberPins() {
-  pins.forEach(function(p, i) {
-    p.seq = i + 1;
-    p.id = String(i + 1).padStart(3, '0');
-  });
-  pinSeq = pins.length;
+function rotatePin() {
+  if (editingPinIdx === null) return;
+  const p = pins[editingPinIdx];
+  closePinCategoryMenu();
+  p.rot = ((p.rot || 0) + 90) % 360;
+  renderPins();
+  autoSave();
+}
+
+function insertAfterPin() {
+  if (editingPinIdx === null) return;
+  const no = pins[editingPinIdx].no;
+  closePinCategoryMenu();
+  setNextNo(no + 1);
+  showToast('次に配置するピンは ' + padNo(no + 1) + ' になります（以降の番号は自動で後ろへずれます）。');
 }
 
 function deletePin() {
   if (editingPinIdx === null) return;
   const idx = editingPinIdx;
   closePinCategoryMenu();
-  pins.splice(idx, 1);
-  renumberPins();
+  removePinAt(idx);
   renderPins();
   updateStats();
   autoSave();
-  showToast('ピンを削除しました。');
+  showToast('ピンを削除しました。以降の番号を詰めました。');
 }
 
 document.addEventListener('mousedown', function(e) {
@@ -602,7 +767,8 @@ let pinDragStartX = 0, pinDragStartY = 0;
 
 container.addEventListener('mousedown', function(e) {
   if (!usingPdf) return;
-  if (e.target.closest('.cat-float-panel, .zoom-float-panel')) return;
+  if (e.target.closest('.cat-float-panel, .zoom-float-panel, .sel-float-panel')) return;
+  marqueeDragged = false;
 
   const pinEl = e.target.closest('.pin');
   if (pinEl && e.button === 0 && !e.shiftKey) {
@@ -613,6 +779,14 @@ container.addEventListener('mousedown', function(e) {
     pinDragStartX = e.clientX;
     pinDragStartY = e.clientY;
     container.classList.add('panning');
+    return;
+  }
+
+  if (e.button === 0 && !e.shiftKey && (e.ctrlKey || e.metaKey || selectMode)) {
+    e.preventDefault();
+    marqueeActive = true;
+    marqueeStartX = e.clientX;
+    marqueeStartY = e.clientY;
     return;
   }
 
@@ -629,12 +803,35 @@ container.addEventListener('mousedown', function(e) {
 });
 
 window.addEventListener('mousemove', function(e) {
+  if (marqueeActive) {
+    if (Math.abs(e.clientX - marqueeStartX) > 3 || Math.abs(e.clientY - marqueeStartY) > 3) marqueeDragged = true;
+    if (marqueeDragged) {
+      const cr = container.getBoundingClientRect();
+      const box = document.getElementById('select-box');
+      box.style.display = 'block';
+      box.style.left = (Math.min(e.clientX, marqueeStartX) - cr.left) + 'px';
+      box.style.top = (Math.min(e.clientY, marqueeStartY) - cr.top) + 'px';
+      box.style.width = Math.abs(e.clientX - marqueeStartX) + 'px';
+      box.style.height = Math.abs(e.clientY - marqueeStartY) + 'px';
+    }
+    return;
+  }
   if (draggingPinIdx !== null) {
     if (Math.abs(e.clientX - pinDragStartX) > 3 || Math.abs(e.clientY - pinDragStartY) > 3) pinDragged = true;
     const { x: xPct, y: yPct } = getLocalPercent(e.clientX, e.clientY);
-    pins[draggingPinIdx].xPct = Math.min(100, Math.max(0, xPct));
-    pins[draggingPinIdx].yPct = Math.min(100, Math.max(0, yPct));
+    const ap = pins[draggingPinIdx];
+    const oldX = ap.xPct, oldY = ap.yPct;
+    ap.xPct = Math.min(100, Math.max(0, xPct));
+    ap.yPct = Math.min(100, Math.max(0, yPct));
     updateAlignGuides(draggingPinIdx);
+    if (selection.has(ap)) {
+      const gdx = ap.xPct - oldX, gdy = ap.yPct - oldY;
+      selection.forEach(q => {
+        if (q === ap) return;
+        q.xPct = Math.min(100, Math.max(0, q.xPct + gdx));
+        q.yPct = Math.min(100, Math.max(0, q.yPct + gdy));
+      });
+    }
     renderPins();
     return;
   }
@@ -649,6 +846,22 @@ window.addEventListener('mousemove', function(e) {
 });
 
 window.addEventListener('mouseup', function(e) {
+  if (marqueeActive) {
+    marqueeActive = false;
+    document.getElementById('select-box').style.display = 'none';
+    if (marqueeDragged) {
+      const x1 = Math.min(e.clientX, marqueeStartX), x2 = Math.max(e.clientX, marqueeStartX);
+      const y1 = Math.min(e.clientY, marqueeStartY), y2 = Math.max(e.clientY, marqueeStartY);
+      selection.clear();
+      document.querySelectorAll('#pins-layer .pin').forEach(el => {
+        const r = el.getBoundingClientRect();
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        if (cx >= x1 && cx <= x2 && cy >= y1 && cy <= y2) selection.add(pins[parseInt(el.dataset.idx, 10)]);
+      });
+      renderPins();
+    }
+    return;
+  }
   if (draggingPinIdx !== null) {
     draggingPinIdx = null;
     container.classList.remove('panning');
@@ -673,7 +886,7 @@ function updateAlignGuides(activeIdx) {
   const active = pins[activeIdx];
   let snappedX = null, snappedY = null;
   pins.forEach((p, i) => {
-    if (i === activeIdx || p.context !== active.context) return;
+    if (i === activeIdx || p.context !== active.context || (selection.has(active) && selection.has(p))) return;
     if (Math.abs(p.xPct - active.xPct) < threshX) snappedX = p.xPct;
     if (Math.abs(p.yPct - active.yPct) < threshY) snappedY = p.yPct;
   });
@@ -724,13 +937,15 @@ function renderPins() {
     const el = document.createElement('div');
     el.className = 'pin';
     el.dataset.idx = idx;
+    if (selection.has(p)) el.classList.add('selected');
     el.style.left = p.xPct + '%';
     el.style.top = p.yPct + '%';
-    el.style.transform = 'translate(-50%, -50%) rotate(' + (-rotation) + 'deg) scale(' + invScale + ')';
+    el.style.transform = 'translate(-50%, -50%) rotate(' + ((p.rot || 0) - rotation) + 'deg) scale(' + invScale + ')';
     const sizeScale = pinSizePct / 100;
     el.innerHTML = '<div class="pin-box" style="background:' + c.color + '; font-size:' + (11 * sizeScale) + 'px; padding:' + (3 * sizeScale) + 'px ' + (7 * sizeScale) + 'px;" title="' + c.label + ' / ID:' + p.id + '">' + p.id + '</div>';
     layer.appendChild(el);
   });
+  updateSelPanel();
   document.getElementById('align-guide-x').style.height = '100%';
   document.getElementById('align-guide-y').style.width = '100%';
 }
@@ -771,8 +986,7 @@ function undoLast() {
   const ctx = currentContext();
   for (let i = pins.length - 1; i >= 0; i--) {
     if (pins[i].context === ctx) {
-      pins.splice(i, 1);
-      renumberPins();
+      removePinAt(i);
       break;
     }
   }
@@ -785,7 +999,8 @@ function clearAll() {
   if (!pins.length) return;
   if (!confirm('配置済みのピンをすべて削除します。よろしいですか？')) return;
   pins = [];
-  pinSeq = 0;
+  selection.clear();
+  setNextNo(1);
   renderPins();
   updateStats();
   autoSave();
@@ -825,7 +1040,8 @@ function loadPdfFile(file) {
 
       if (pendingAutoRestore && pendingAutoRestore.pdfFileName === pdfFileName) {
         pins = pendingAutoRestore.pins || [];
-        pinSeq = pendingAutoRestore.pinSeq || pins.reduce((m, p) => Math.max(m, p.seq || 0), 0);
+        normalizePinNumbers();
+        setNextNo(typeof pendingAutoRestore.nextNo === 'number' ? pendingAutoRestore.nextNo : pins.reduce((m, p) => Math.max(m, p.no), 0) + 1);
         pendingAutoRestore = null;
         showToast('前回の保存データを復元しました（' + pins.length + '件）。');
       }
@@ -841,6 +1057,7 @@ function loadPdfFile(file) {
 
 function renderPage() {
   if (!pdfDoc) return;
+  selection.clear();
   pdfDoc.getPage(currentPage).then(function(page) {
     const viewport = page.getViewport({ scale: 2 });
     const canvas = document.getElementById('pdf-canvas');
@@ -971,7 +1188,7 @@ function snapshotState() {
     version: 2,
     pdfFileName: pdfFileName || '',
     savedAt: new Date().toISOString(),
-    pinSeq: pinSeq,
+    nextNo: nextNo,
     pins: pins
   };
 }
@@ -997,18 +1214,22 @@ function clearAutoSave() {
   try { localStorage.removeItem(AUTOSAVE_KEY); } catch (err) {}
 }
 
+// 旧形式の保存データ（seq / id のみ）にも対応して no を補完する
+function normalizePinNumbers() {
+  pins.forEach((p, i) => {
+    if (typeof p.no !== 'number') p.no = p.seq || parseInt(p.id, 10) || (i + 1);
+    p.id = padNo(p.no);
+  });
+}
+
 function applySnapshot(data) {
   if (!data || !Array.isArray(data.pins)) {
     showToast('保存データの形式が正しくありません。');
     return false;
   }
   pins = data.pins;
-  if (typeof data.pinSeq === 'number') {
-    pinSeq = data.pinSeq;
-  } else {
-    pinSeq = pins.reduce((max, p) => Math.max(max, p.seq || 0), 0) || pins.length;
-    pins.forEach((p, i) => { if (!p.id || !p.seq) { p.seq = i + 1; p.id = String(i + 1).padStart(3, '0'); } });
-  }
+  normalizePinNumbers();
+  setNextNo(typeof data.nextNo === 'number' ? data.nextNo : pins.reduce((m, p) => Math.max(m, p.no), 0) + 1);
   renderPins();
   updateStats();
   autoSave();
@@ -1122,12 +1343,16 @@ function renderExportCanvas(sizeScalePct) {
     const boxW = textWidth + padX * 2;
     const boxH = fontSize + padY * 2;
 
+    ctx.save();
+    ctx.translate(px, py);
+    ctx.rotate((p.rot || 0) * Math.PI / 180);
     ctx.fillStyle = c.color;
-    roundRectPath(ctx, px - boxW / 2, py - boxH / 2, boxW, boxH, radius);
+    roundRectPath(ctx, -boxW / 2, -boxH / 2, boxW, boxH, radius);
     ctx.fill();
 
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(p.id, px, py + fontSize * 0.04);
+    ctx.fillText(p.id, 0, fontSize * 0.04);
+    ctx.restore();
   });
 
   // 配置済み什器の個数を右上にバッジ表示
@@ -1227,8 +1452,9 @@ function exportToExcel() {
     return Math.round((parseFloat(p.length) || 0) * 10) / 10;
   }
 
-  const detailRows = pins.map((p, i) => ({
-    'No': i + 1,
+  const sortedPins = pins.slice().sort((a, b) => a.no - b.no);
+  const detailRows = sortedPins.map((p) => ({
+    'No': p.no,
     'ID': p.id,
     'カテゴリ': cats[p.cat].label,
     '段数': (p.levels || []).length,
@@ -1267,41 +1493,6 @@ function exportToExcel() {
   const d = String(today.getDate()).padStart(2, '0');
   XLSX.writeFile(wb, '収納量調査_ピン一覧_' + y + m + d + '.xlsx');
 }
-
-// ---------- ログインゲート（簡易パスワード。閲覧防止用の目隠しであり、厳密なセキュリティではありません） ----------
-const LOGIN_PASSWORD = 'storart2026';
-const LOGIN_SESSION_KEY = 'storage_mapping_authed';
-
-function attemptLogin() {
-  const input = document.getElementById('login-password');
-  const errEl = document.getElementById('login-error');
-  if (input.value === LOGIN_PASSWORD) {
-    try { sessionStorage.setItem(LOGIN_SESSION_KEY, '1'); } catch (e) {}
-    document.getElementById('login-overlay').classList.add('hidden');
-    errEl.textContent = '';
-  } else {
-    errEl.textContent = 'パスワードが違います。';
-    input.value = '';
-    input.focus();
-  }
-}
-
-document.getElementById('login-password').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') attemptLogin();
-});
-
-(function initLoginGate() {
-  let authed = false;
-  try { authed = sessionStorage.getItem(LOGIN_SESSION_KEY) === '1'; } catch (e) {}
-  if (authed) {
-    document.getElementById('login-overlay').classList.add('hidden');
-  } else {
-    setTimeout(function() {
-      const el = document.getElementById('login-password');
-      if (el) el.focus();
-    }, 100);
-  }
-})();
 
 // ---------- 初期化: 前回の自動保存データがあれば通知 ----------
 (function initAutoRestoreCheck() {
