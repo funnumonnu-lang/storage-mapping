@@ -83,12 +83,18 @@
   .cat-float-no input { width: 64px; padding: 5px 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 12.5px; text-align: center; }
   .cat-float-no input:focus { outline: none; border-color: #3A7BD5; }
   .cat-float-icon-btn.active { background: #FFF3C4; color: #7A5B00; box-shadow: inset 0 0 0 2px #E6B800; }
-  .sel-float-panel { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.97); border-radius: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.22); padding: 7px 10px; z-index: 22; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 200px); }
+  .sel-float-panel { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.97); border-radius: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.22); padding: 7px 10px; z-index: 22; flex-wrap: wrap; justify-content: center; width: max-content; max-width: calc(100% - 200px); }
   .sel-float-panel.visible { display: flex; }
   .sel-count { font-size: 12px; font-weight: 800; color: #1B2540; margin-right: 4px; white-space: nowrap; }
   .sel-btn { border: none; border-radius: 6px; padding: 6px 10px; font-size: 11.5px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; }
   .sel-btn:hover { filter: brightness(1.1); }
   .sel-btn-ghost { background: #F0F2F7; color: #555; }
+  .align-wrap { position: relative; }
+  .align-menu { position: absolute; top: calc(100% + 6px); left: 0; display: none; flex-direction: column; background: #fff; border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,0.22); padding: 4px; min-width: 190px; z-index: 30; }
+  .align-menu.visible { display: flex; }
+  .align-menu button { border: none; background: none; text-align: left; padding: 7px 10px; font-size: 12px; color: #1B2540; border-radius: 5px; cursor: pointer; white-space: nowrap; }
+  .align-menu button:hover { background: #EEF1F8; }
+  .align-menu-divider { height: 1px; background: #E3E6EE; margin: 3px 4px; }
   #select-box { position: absolute; display: none; border: 1.5px dashed #E6B800; background: rgba(255,212,0,0.15); pointer-events: none; z-index: 15; }
   .pin.selected .pin-box { outline: 2px solid #FFC400; outline-offset: 2px; }
   .zoom-float-panel { position: absolute; bottom: 14px; left: 14px; display: none; align-items: center; gap: 4px; background: rgba(255,255,255,0.97); border-radius: 30px; box-shadow: 0 4px 18px rgba(0,0,0,0.18); padding: 5px 8px; z-index: 20; }
@@ -267,6 +273,21 @@
     <div class="sel-float-panel" id="sel-float-panel">
       <span class="sel-count" id="sel-count">0件選択中</span>
       <button class="sel-btn" style="background:#2E8B6E;" onclick="rotateSelected()">90°回転</button>
+      <div class="align-wrap">
+        <button class="sel-btn" style="background:#5B4BA8;" onclick="toggleAlignMenu(event)">整列 ▾</button>
+        <div class="align-menu" id="align-menu">
+          <button onclick="alignSelected('left')">⇤ 左揃え</button>
+          <button onclick="alignSelected('hcenter')">↔ 左右中央揃え</button>
+          <button onclick="alignSelected('right')">⇥ 右揃え</button>
+          <div class="align-menu-divider"></div>
+          <button onclick="alignSelected('top')">⤒ 上揃え</button>
+          <button onclick="alignSelected('vcenter')">↕ 上下中央揃え</button>
+          <button onclick="alignSelected('bottom')">⤓ 下揃え</button>
+          <div class="align-menu-divider"></div>
+          <button onclick="alignSelected('hdist')">┅ 左右に整列（等間隔）</button>
+          <button onclick="alignSelected('vdist')">┇ 上下に整列（等間隔）</button>
+        </div>
+      </div>
       <button class="sel-btn" style="background:#185FA5;" onclick="changeSelectedCategory('low')">ローキャビ</button>
       <button class="sel-btn" style="background:#A32D2D;" onclick="changeSelectedCategory('high')">ハイキャビ</button>
       <button class="sel-btn" style="background:#BA7517;" onclick="changeSelectedCategory('other')">その他</button>
@@ -500,6 +521,67 @@ function toggleSelectMode() {
 }
 function rotateSelected() {
   selection.forEach(p => { p.rot = ((p.rot || 0) + 90) % 360; });
+  renderPins(); autoSave();
+}
+// ---------- 整列（PowerPoint風） ----------
+// 図面が回転していても「画面で見た向き」で揃えるため、画面向きの座標に変換して計算する
+function toggleAlignMenu(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('align-menu').classList.toggle('visible');
+}
+function closeAlignMenu() {
+  const m = document.getElementById('align-menu');
+  if (m) m.classList.remove('visible');
+}
+document.addEventListener('mousedown', function(e) {
+  if (!e.target.closest('.align-wrap')) closeAlignMenu();
+});
+function pinToScreenAxes(p) {
+  const lx = p.xPct / 100 * baseWidthPx;
+  const ly = p.yPct / 100 * baseWidthPx * canvasAspect;
+  if (rotation === 90) return { x: -ly, y: lx };
+  if (rotation === 180) return { x: -lx, y: -ly };
+  if (rotation === 270) return { x: ly, y: -lx };
+  return { x: lx, y: ly };
+}
+function setPinFromScreenAxes(p, sx, sy) {
+  let lx, ly;
+  if (rotation === 90) { lx = sy; ly = -sx; }
+  else if (rotation === 180) { lx = -sx; ly = -sy; }
+  else if (rotation === 270) { lx = -sy; ly = sx; }
+  else { lx = sx; ly = sy; }
+  p.xPct = Math.min(100, Math.max(0, lx / baseWidthPx * 100));
+  p.yPct = Math.min(100, Math.max(0, ly / (baseWidthPx * canvasAspect) * 100));
+}
+function alignSelected(mode) {
+  closeAlignMenu();
+  const ctx = currentContext();
+  const targets = Array.from(selection).filter(p => p.context === ctx);
+  const isDist = mode === 'hdist' || mode === 'vdist';
+  if (targets.length < (isDist ? 3 : 2)) {
+    showToast(isDist ? '等間隔に並べるには3つ以上選択してください。' : '整列するには2つ以上選択してください。');
+    return;
+  }
+  const pts = targets.map(p => ({ p, ...pinToScreenAxes(p) }));
+  const xs = pts.map(o => o.x), ys = pts.map(o => o.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  if (mode === 'left') pts.forEach(o => { o.x = minX; });
+  else if (mode === 'right') pts.forEach(o => { o.x = maxX; });
+  else if (mode === 'hcenter') pts.forEach(o => { o.x = (minX + maxX) / 2; });
+  else if (mode === 'top') pts.forEach(o => { o.y = minY; });
+  else if (mode === 'bottom') pts.forEach(o => { o.y = maxY; });
+  else if (mode === 'vcenter') pts.forEach(o => { o.y = (minY + maxY) / 2; });
+  else if (mode === 'hdist') {
+    pts.sort((a, b) => a.x - b.x);
+    const step = (maxX - minX) / (pts.length - 1);
+    pts.forEach((o, i) => { o.x = minX + step * i; });
+  } else if (mode === 'vdist') {
+    pts.sort((a, b) => a.y - b.y);
+    const step = (maxY - minY) / (pts.length - 1);
+    pts.forEach((o, i) => { o.y = minY + step * i; });
+  }
+  pts.forEach(o => setPinFromScreenAxes(o.p, o.x, o.y));
   renderPins(); autoSave();
 }
 function deleteSelected() {
