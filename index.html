@@ -83,18 +83,20 @@
   .cat-float-no input { width: 64px; padding: 5px 6px; border: 1px solid #ccc; border-radius: 6px; font-size: 12.5px; text-align: center; }
   .cat-float-no input:focus { outline: none; border-color: #3A7BD5; }
   .cat-float-icon-btn.active { background: #FFF3C4; color: #7A5B00; box-shadow: inset 0 0 0 2px #E6B800; }
-  .sel-float-panel { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.97); border-radius: 12px; box-shadow: 0 4px 18px rgba(0,0,0,0.22); padding: 7px 10px; z-index: 22; flex-wrap: wrap; justify-content: center; width: max-content; max-width: calc(100% - 200px); }
+  .cat-float-count { margin-left: auto; padding-left: 10px; font-size: 12.5px; font-weight: 800; color: #1B2540; }
+  .cat-float-total { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 2px 6px; font-size: 11.5px; font-weight: 700; color: #666; }
+  .cat-float-total strong { font-size: 16px; color: #185FA5; }
+
+  /* 選択時の操作ツールバー（回転・整列）: 選択したピンの近くに表示 */
+  .sel-float-panel { position: absolute; left: 0; top: 0; display: none; align-items: center; gap: 1px; background: #fff; border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,0.22); padding: 3px; z-index: 22; flex-wrap: wrap; width: max-content; max-width: calc(100% - 16px); }
   .sel-float-panel.visible { display: flex; }
-  .sel-count { font-size: 12px; font-weight: 800; color: #1B2540; margin-right: 4px; white-space: nowrap; }
+  .sel-tool { display: flex; align-items: center; gap: 5px; border: none; background: none; padding: 6px 8px; font-size: 12px; color: #1B2540; border-radius: 5px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+  .sel-tool:hover:not(:disabled) { background: #EEF1F8; }
+  .sel-tool:disabled { opacity: 0.35; cursor: default; }
+  .sel-tool svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sel-tool-divider { width: 1px; align-self: stretch; background: #E3E6EE; margin: 4px 3px; }
   .sel-btn { border: none; border-radius: 6px; padding: 6px 10px; font-size: 11.5px; font-weight: 700; color: #fff; cursor: pointer; white-space: nowrap; }
   .sel-btn:hover { filter: brightness(1.1); }
-  .sel-btn-ghost { background: #F0F2F7; color: #555; }
-  .align-wrap { position: relative; }
-  .align-menu { position: absolute; top: calc(100% + 6px); left: 0; display: none; flex-direction: column; background: #fff; border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,0.22); padding: 4px; min-width: 190px; z-index: 30; }
-  .align-menu.visible { display: flex; }
-  .align-menu button { border: none; background: none; text-align: left; padding: 7px 10px; font-size: 12px; color: #1B2540; border-radius: 5px; cursor: pointer; white-space: nowrap; }
-  .align-menu button:hover { background: #EEF1F8; }
-  .align-menu-divider { height: 1px; background: #E3E6EE; margin: 3px 4px; }
   #select-box { position: absolute; display: none; border: 1.5px dashed #E6B800; background: rgba(255,212,0,0.15); pointer-events: none; z-index: 15; }
   .pin.selected .pin-box { outline: 2px solid #FFC400; outline-offset: 2px; }
   .zoom-float-panel { position: absolute; bottom: 14px; left: 14px; display: none; align-items: center; gap: 4px; background: rgba(255,255,255,0.97); border-radius: 30px; box-shadow: 0 4px 18px rgba(0,0,0,0.18); padding: 5px 8px; z-index: 20; }
@@ -104,16 +106,32 @@
   .zoom-float-indicator { font-size: 11.5px; color: #444; min-width: 42px; text-align: center; font-weight: 600; }
 
   /* ---------- Sidebar ---------- */
-  .sidebar { width: 250px; flex-shrink: 0; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 16px; display: flex; flex-direction: column; gap: 14px; max-height: calc(100vh - 118px); overflow: hidden; }
+  .sidebar { width: 270px; flex-shrink: 0; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); padding: 16px; display: flex; flex-direction: column; gap: 14px; max-height: calc(100vh - 118px); overflow-y: auto; }
   .sidebar-header { display: flex; align-items: center; justify-content: space-between; }
   .sidebar-title { font-size: 13.5px; font-weight: 800; color: #1B2540; }
   .sidebar-count { font-size: 11.5px; color: #8B93A8; background: #F4F6FA; padding: 3px 10px; border-radius: 14px; }
   .sidebar-stats { background: #F8F9FC; border-radius: 10px; padding: 12px 14px; }
   .sidebar-stats-title { font-size: 11.5px; color: #8B93A8; font-weight: 700; margin-bottom: 8px; }
-  .sidebar-stat-row { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; padding: 3px 0; color: #444; }
-  .sidebar-stat-row strong { color: #1B2540; }
-  .sidebar-stat-total { display: flex; align-items: baseline; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid #E9ECF3; font-size: 13px; font-weight: 700; color: #1B2540; }
-  .sidebar-stat-total span.big { font-size: 20px; color: #185FA5; }
+
+  /* 属性情報パネル */
+  #attr-body { display: flex; flex-direction: column; gap: 12px; }
+  .attr-hint { font-size: 12px; color: #8B93A8; line-height: 1.7; }
+  .attr-ids { font-size: 12px; color: #444; font-weight: 600; word-break: break-all; }
+  .attr-cat-row { display: flex; gap: 4px; }
+  .attr-cat-btn { flex: 1; border: 2px solid transparent; background: #fff; border-radius: 7px; padding: 7px 2px; font-size: 11.5px; font-weight: 700; cursor: pointer; box-shadow: inset 0 0 0 1px #DDE1EA; font-family: inherit; }
+  .attr-cat-btn.active { color: #fff !important; box-shadow: none; }
+  .attr-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: #444; padding: 3px 0; }
+  .attr-field input { width: 120px; padding: 5px 7px; border: 1px solid #ccc; border-radius: 6px; font-size: 12.5px; font-family: inherit; }
+  .attr-field input:focus { outline: none; border-color: #3A7BD5; }
+  .attr-field input.num { width: 80px; text-align: right; }
+  .attr-fm { font-size: 13px; font-weight: 800; color: #1B2540; }
+  .attr-fm-big { font-size: 18px; color: #185FA5; }
+  .attr-note { font-size: 10.5px; color: #9AA3B8; line-height: 1.5; margin-top: 4px; }
+  .attr-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+  .attr-action { border: 1px solid #DDE1EA; background: #fff; color: #444; font-size: 11.5px; font-weight: 600; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+  .attr-action:hover { background: #F4F6FA; }
+  .attr-action.danger { color: #C0392B; border-color: #F0C9C5; }
+  .attr-action.danger:hover { background: #FCEBEA; }
 
   @media (max-width: 800px) {
     .main { flex-direction: column; height: auto; }
@@ -135,15 +153,6 @@
   /* ---------- Toast ---------- */
   #app-toast { position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 20px); background: #1B2540; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; z-index: 1200; max-width: 80vw; text-align: center; }
   #app-toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-  .pin-cat-menu { position: fixed; display: none; flex-direction: column; gap: 4px; background: #fff; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); padding: 6px; z-index: 1300; transform: translateX(-50%); min-width: 140px; }
-  .pin-cat-menu.visible { display: flex; }
-  .pin-cat-menu-label { font-size: 10px; color: #999; padding: 4px 8px 2px; }
-  .pin-cat-menu-btn { border: none; border-radius: 6px; padding: 8px 10px; font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; text-align: left; }
-  .pin-cat-menu-btn:hover { opacity: 0.85; }
-  .pin-cat-menu-divider { height: 1px; background: #eee; margin: 2px 4px; }
-  .pin-cat-menu-danger { background: #fff !important; color: #C0392B !important; }
-  .pin-cat-menu-danger:hover { background: #FCEBEA !important; opacity: 1; }
 
   /* ---------- Login gate ---------- */
   #login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg,#1B2540,#233158); display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
@@ -249,15 +258,19 @@
       <button class="cat-float-btn active" id="cat-btn-low" style="color:#185FA5;" onclick="selectCat('low')">
         <span class="cat-float-letter" style="background:#185FA5;">L</span>
         <span class="cat-float-label">ローキャビ</span>
+        <span class="cat-float-count" id="count-low">0</span>
       </button>
       <button class="cat-float-btn" id="cat-btn-high" style="color:#A32D2D;" onclick="selectCat('high')">
         <span class="cat-float-letter" style="background:#A32D2D;">H</span>
         <span class="cat-float-label">ハイキャビ</span>
+        <span class="cat-float-count" id="count-high">0</span>
       </button>
       <button class="cat-float-btn" id="cat-btn-other" style="color:#BA7517;" onclick="selectCat('other')">
         <span class="cat-float-letter" style="background:#BA7517;">T</span>
         <span class="cat-float-label">その他什器</span>
+        <span class="cat-float-count" id="count-other">0</span>
       </button>
+      <div class="cat-float-total"><span>什器合計</span><span><strong id="count-total">0</strong> 台</span></div>
       <div class="cat-float-divider"></div>
       <label class="cat-float-no">
         <span>次の番号</span>
@@ -271,28 +284,35 @@
 
     <div id="select-box"></div>
     <div class="sel-float-panel" id="sel-float-panel">
-      <span class="sel-count" id="sel-count">0件選択中</span>
-      <button class="sel-btn" style="background:#2E8B6E;" onclick="rotateSelected()">90°回転</button>
-      <div class="align-wrap">
-        <button class="sel-btn" style="background:#5B4BA8;" onclick="toggleAlignMenu(event)">整列 ▾</button>
-        <div class="align-menu" id="align-menu">
-          <button onclick="alignSelected('left')">⇤ 左揃え</button>
-          <button onclick="alignSelected('hcenter')">↔ 左右中央揃え</button>
-          <button onclick="alignSelected('right')">⇥ 右揃え</button>
-          <div class="align-menu-divider"></div>
-          <button onclick="alignSelected('top')">⤒ 上揃え</button>
-          <button onclick="alignSelected('vcenter')">↕ 上下中央揃え</button>
-          <button onclick="alignSelected('bottom')">⤓ 下揃え</button>
-          <div class="align-menu-divider"></div>
-          <button onclick="alignSelected('hdist')">┅ 左右に整列（等間隔）</button>
-          <button onclick="alignSelected('vdist')">┇ 上下に整列（等間隔）</button>
-        </div>
-      </div>
-      <button class="sel-btn" style="background:#185FA5;" onclick="changeSelectedCategory('low')">ローキャビ</button>
-      <button class="sel-btn" style="background:#A32D2D;" onclick="changeSelectedCategory('high')">ハイキャビ</button>
-      <button class="sel-btn" style="background:#BA7517;" onclick="changeSelectedCategory('other')">その他</button>
-      <button class="sel-btn" style="background:#C0392B;" onclick="deleteSelected()">削除</button>
-      <button class="sel-btn sel-btn-ghost" onclick="clearSelection()">選択解除</button>
+      <button class="sel-tool" onclick="rotateSelected()" title="図形・数字を90°回転">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 10a5.5 5.5 0 1 1-1.6-3.9"/><polyline points="14.5 2.5 14.5 6.5 10.5 6.5" stroke="#2B78C5"/></svg>回転
+      </button>
+      <div class="sel-tool-divider"></div>
+      <button class="sel-tool sel-align" onclick="alignSelected('left')">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="3" y1="2" x2="3" y2="18" stroke="#2B78C5" stroke-width="1.8"/><rect x="5.5" y="4" width="11" height="4" rx="0.5"/><rect x="5.5" y="12" width="6.5" height="4" rx="0.5"/></svg>左揃え
+      </button>
+      <button class="sel-tool sel-align" onclick="alignSelected('hcenter')">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="10" y1="2" x2="10" y2="18" stroke="#2B78C5" stroke-width="1.8"/><rect x="4" y="4" width="12" height="4" rx="0.5"/><rect x="6.5" y="12" width="7" height="4" rx="0.5"/></svg>左右中央揃え
+      </button>
+      <button class="sel-tool sel-align" onclick="alignSelected('right')">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="17" y1="2" x2="17" y2="18" stroke="#2B78C5" stroke-width="1.8"/><rect x="3.5" y="4" width="11" height="4" rx="0.5"/><rect x="8" y="12" width="6.5" height="4" rx="0.5"/></svg>右揃え
+      </button>
+      <button class="sel-tool sel-align" onclick="alignSelected('top')">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="2" y1="3" x2="18" y2="3" stroke="#2B78C5" stroke-width="1.8"/><rect x="4" y="5.5" width="4" height="11" rx="0.5"/><rect x="12" y="5.5" width="4" height="6.5" rx="0.5"/></svg>上揃え
+      </button>
+      <button class="sel-tool sel-align" onclick="alignSelected('vcenter')">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="2" y1="10" x2="18" y2="10" stroke="#2B78C5" stroke-width="1.8"/><rect x="4" y="4" width="4" height="12" rx="0.5"/><rect x="12" y="6.5" width="4" height="7" rx="0.5"/></svg>上下中央揃え
+      </button>
+      <button class="sel-tool sel-align" onclick="alignSelected('bottom')">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="2" y1="17" x2="18" y2="17" stroke="#2B78C5" stroke-width="1.8"/><rect x="4" y="3.5" width="4" height="11" rx="0.5"/><rect x="12" y="8" width="4" height="6.5" rx="0.5"/></svg>下揃え
+      </button>
+      <div class="sel-tool-divider"></div>
+      <button class="sel-tool sel-dist" onclick="alignSelected('hdist')">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="1.5" y1="3" x2="1.5" y2="17" stroke="#2B78C5" stroke-width="1.6"/><line x1="18.5" y1="3" x2="18.5" y2="17" stroke="#2B78C5" stroke-width="1.6"/><rect x="4" y="6" width="3" height="8" rx="0.5"/><rect x="8.5" y="4" width="3" height="12" rx="0.5"/><rect x="13" y="7" width="3" height="6" rx="0.5"/></svg>左右に整列
+      </button>
+      <button class="sel-tool sel-dist" onclick="alignSelected('vdist')">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4"><line x1="3" y1="1.5" x2="17" y2="1.5" stroke="#2B78C5" stroke-width="1.6"/><line x1="3" y1="18.5" x2="17" y2="18.5" stroke="#2B78C5" stroke-width="1.6"/><rect x="6" y="4" width="8" height="3" rx="0.5"/><rect x="4" y="8.5" width="12" height="3" rx="0.5"/><rect x="7" y="13" width="6" height="3" rx="0.5"/></svg>上下に整列
+      </button>
     </div>
     <div class="zoom-float-panel" id="zoom-float-panel">
       <button class="zoom-float-btn" onclick="changeZoom(-10)">−</button>
@@ -305,23 +325,11 @@
 
   <aside class="sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-title">配置サマリー</span>
-      <span class="sidebar-count" id="sidebar-count">0件</span>
+      <span class="sidebar-title">属性情報</span>
+      <span class="sidebar-count" id="attr-count">未選択</span>
     </div>
-    <div class="sidebar-stats">
-      <div class="sidebar-stats-title">什器合計</div>
-      <div class="sidebar-stat-row"><span>ローキャビ</span><strong id="count-low">0</strong></div>
-      <div class="sidebar-stat-row"><span>ハイキャビ</span><strong id="count-high">0</strong></div>
-      <div class="sidebar-stat-row"><span>その他什器</span><strong id="count-other">0</strong></div>
-      <div class="sidebar-stat-total"><span>合計</span><span class="big" id="count-total">0</span></div>
-    </div>
-    <div class="sidebar-stats">
-      <div class="sidebar-stats-title">収納量 (fm)</div>
-      <div class="sidebar-stat-row"><span>ローキャビ</span><strong id="fm-low">0.0</strong></div>
-      <div class="sidebar-stat-row"><span>ハイキャビ</span><strong id="fm-high">0.0</strong></div>
-      <div class="sidebar-stat-row"><span>その他什器</span><strong id="fm-other">0.0</strong></div>
-      <div class="sidebar-stat-total"><span>合計</span><span class="big" id="fm-total">0.0</span></div>
-    </div>
+    <div id="attr-body"></div>
+    <datalist id="dept-options"></datalist>
   </aside>
 </div>
 
@@ -381,17 +389,6 @@
       <button class="btn btn-image" onclick="confirmExportDownload()">この内容でダウンロード</button>
     </div>
   </div>
-</div>
-
-<div id="pin-cat-menu" class="pin-cat-menu">
-  <div class="pin-cat-menu-label">什器分類を変更</div>
-  <button class="pin-cat-menu-btn" style="background:#185FA5;" onclick="changePinCategory('low')">ローキャビ</button>
-  <button class="pin-cat-menu-btn" style="background:#A32D2D;" onclick="changePinCategory('high')">ハイキャビ</button>
-  <button class="pin-cat-menu-btn" style="background:#BA7517;" onclick="changePinCategory('other')">その他の什器</button>
-  <div class="pin-cat-menu-divider"></div>
-  <button class="pin-cat-menu-btn" style="background:#2E8B6E;" onclick="rotatePin()">図形・数字を90°回転</button>
-  <button class="pin-cat-menu-btn" style="background:#4A5A8A;" onclick="insertAfterPin()">この次に番号を挿入</button>
-  <button class="pin-cat-menu-btn pin-cat-menu-danger" onclick="deletePin()">このピンを削除</button>
 </div>
 
 <div id="app-toast"></div>
@@ -506,7 +503,6 @@ function getLocalPercent(clientX, clientY) {
 }
 
 let pendingOtherClick = null;
-let pendingCategoryChangeIdx = null; // 「その他」への分類変更で入力待ちのピン番号
 let nextNo = 1; // 次に配置するピンの番号（任意の番号から開始・途中挿入が可能）
 function padNo(n) { return String(n).padStart(3, '0'); }
 function setNextNo(n) {
@@ -519,14 +515,225 @@ const selection = new Set();
 let selectMode = false;
 let marqueeActive = false, marqueeDragged = false;
 let marqueeStartX = 0, marqueeStartY = 0;
-let pendingGroupChange = false;
 
 function clearSelection() { selection.clear(); renderPins(); }
 function updateSelPanel() {
+  positionSelToolbar();
+  renderAttrPanel();
+}
+// 操作ツールバー（回転・整列）を選択中ピンのすぐ上（入らなければ下）に表示
+function positionSelToolbar() {
   const panel = document.getElementById('sel-float-panel');
   if (!panel) return;
-  panel.classList.toggle('visible', selection.size > 0);
-  document.getElementById('sel-count').textContent = selection.size + '件選択中';
+  const els = document.querySelectorAll('#pins-layer .pin.selected');
+  if (!usingPdf || !selection.size || !els.length) { panel.classList.remove('visible'); return; }
+  panel.classList.add('visible');
+  panel.querySelectorAll('.sel-align').forEach(b => { b.disabled = selection.size < 2; });
+  panel.querySelectorAll('.sel-dist').forEach(b => { b.disabled = selection.size < 3; });
+  const cr = container.getBoundingClientRect();
+  let minL = Infinity, minT = Infinity, maxR = -Infinity, maxB = -Infinity;
+  els.forEach(el => {
+    const r = el.getBoundingClientRect();
+    minL = Math.min(minL, r.left); minT = Math.min(minT, r.top);
+    maxR = Math.max(maxR, r.right); maxB = Math.max(maxB, r.bottom);
+  });
+  const w = panel.offsetWidth, h = panel.offsetHeight;
+  let left = (minL + maxR) / 2 - cr.left - w / 2;
+  left = Math.max(8, Math.min(cr.width - w - 8, left));
+  let top = minT - cr.top - h - 10;                       // 上に置く
+  if (top < 8) top = maxB - cr.top + 10;                  // 入らなければ下
+  if (top > cr.height - h - 8) top = 8;                   // それも無理なら図面の上端
+  top = Math.max(8, top);
+  panel.style.left = left + 'px';
+  panel.style.top = top + 'px';
+}
+
+// ---------- 属性情報パネル（右側） ----------
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+// 幅(m): ロー/ハイキャビは未設定なら0.9
+function pinWidth(p) {
+  const len = parseFloat(p.length) || 0;
+  if (len > 0) return len;
+  return (p.cat === 'low' || p.cat === 'high') ? 0.9 : 0;
+}
+// 段ごとの管理部署（旧データの dept 1項目にも対応）
+function ensureDepts(p) {
+  const n = (p.levels || []).length;
+  if (!Array.isArray(p.depts)) p.depts = [];
+  while (p.depts.length < n) p.depts.push(p.dept || '');
+  if (p.depts.length > n) p.depts.length = n;
+  return p.depts;
+}
+function selectedPinsSorted() {
+  return Array.from(selection).sort((a, b) => a.no - b.no);
+}
+// 全員同じ値ならその値、バラバラなら null
+function commonValue(arr) {
+  if (!arr.length) return null;
+  return arr.every(v => v === arr[0]) ? arr[0] : null;
+}
+let lastAttrKey = null;
+function attrKey() {
+  return selectedPinsSorted().map(p => [p.no, p.cat, p.name || '', p.memo || '', (p.levels || []).length, pinWidth(p), p.fm, ensureDepts(p).join('\u0001')].join('|')).join('\n');
+}
+function refreshDeptOptions() {
+  const set = new Set();
+  pins.forEach(p => ensureDepts(p).forEach(d => { if (d) set.add(d); }));
+  document.getElementById('dept-options').innerHTML = Array.from(set).sort().map(d => '<option value="' + escapeHtml(d) + '">').join('');
+}
+function renderAttrPanel() {
+  const key = attrKey();
+  if (key === lastAttrKey) return;
+  lastAttrKey = key;
+  const body = document.getElementById('attr-body');
+  const countEl = document.getElementById('attr-count');
+  if (!selection.size) {
+    countEl.textContent = '未選択';
+    body.innerHTML = '<div class="attr-hint">図面上のピンをクリックすると、ここに属性情報（タイプ・収納量・部署名など）を表示します。<br><br>' +
+      '・Ctrl+クリック：選択に追加／解除<br>・Ctrl+ドラッグ：範囲選択<br>・Delete：選択したピンを削除<br>・Esc：選択解除</div>';
+    return;
+  }
+  refreshDeptOptions();
+  const sel = selectedPinsSorted();
+  const n = sel.length;
+  countEl.textContent = n + '件選択中';
+
+  const byCat = { low: 0, high: 0, other: 0 };
+  let fmSum = 0;
+  sel.forEach(p => { byCat[p.cat]++; fmSum += parseFloat(p.fm) || 0; });
+  const breakdown = ['low', 'high', 'other'].filter(c => byCat[c]).map(c => cats[c].label + ' ' + byCat[c]).join('・');
+  const ids = sel.slice(0, 15).map(p => p.id).join(', ') + (n > 15 ? ' ほか' : '');
+
+  const cCat = commonValue(sel.map(p => p.cat));
+  const cName = commonValue(sel.map(p => p.name || ''));
+  const cMemo = commonValue(sel.map(p => p.memo || ''));
+  const cLevels = commonValue(sel.map(p => (p.levels || []).length));
+  const cWidth = commonValue(sel.map(p => pinWidth(p)));
+  const allDepts = [];
+  sel.forEach(p => ensureDepts(p).forEach(d => allDepts.push(d)));
+  const cDeptAll = commonValue(allDepts);
+  const maxLv = Math.max(...sel.map(p => (p.levels || []).length));
+
+  function textField(label, id, val, extra) {
+    const v = val === null ? '' : val;
+    const ph = val === null ? '（複数の値）変更しない' : '未入力';
+    return '<label class="attr-field"><span>' + label + '</span><input id="' + id + '" ' + (extra || '') + ' value="' + escapeHtml(v) + '" data-initial="' + escapeHtml(v) + '" placeholder="' + ph + '"></label>';
+  }
+  function numField(label, id, val, step) {
+    const v = val === null ? '' : String(val);
+    const ph = val === null ? '変更しない' : '';
+    return '<label class="attr-field"><span>' + label + '</span><input class="num" type="number" min="' + (step === 1 ? 1 : 0) + '" step="' + step + '" id="' + id + '" value="' + v + '" data-initial="' + v + '" placeholder="' + ph + '"></label>';
+  }
+
+  let html = '';
+  html += '<div class="sidebar-stats">';
+  html += '<div class="attr-ids">' + (n === 1 ? 'No. ' : '') + escapeHtml(ids) + '</div>';
+  html += '<div class="attr-note" style="font-size:11.5px; color:#555;">内訳：' + breakdown + '</div>';
+  html += '<div style="margin-top:6px;"><span class="attr-fm">収納量 計 </span><span class="attr-fm attr-fm-big">' + fmSum.toFixed(1) + '</span><span class="attr-fm"> fm</span></div>';
+  html += '</div>';
+
+  html += '<div>';
+  html += '<div class="sidebar-stats-title">タイプ</div><div class="attr-cat-row" id="attr-cat-row" data-initial="' + (cCat || '') + '">';
+  ['low', 'high', 'other'].forEach(c => {
+    const active = cCat === c;
+    html += '<button type="button" class="attr-cat-btn' + (active ? ' active' : '') + '" data-cat="' + c + '" style="color:' + cats[c].color + ';' + (active ? 'background:' + cats[c].color + ';' : '') + '" onclick="pickAttrCat(\'' + c + '\')">' + cats[c].label + '</button>';
+  });
+  html += '</div>' + (cCat === null ? '<div class="attr-note">タイプが混在しています。押すとまとめて変更します。</div>' : '') + '</div>';
+
+  html += '<div>';
+  html += textField('名称', 'attr-name', cName);
+  html += numField('段数', 'attr-levels', cLevels, 1);
+  html += numField('幅(m)', 'attr-width', cWidth, 0.1);
+  html += '<div class="attr-note">収納量(fm) ＝ 段数 × 幅(m)。ローキャビは3段×0.9m、ハイキャビは6段×0.9mが初期値です。</div>';
+  html += '</div>';
+
+  html += '<div>';
+  html += '<div class="sidebar-stats-title">管理部署</div>';
+  html += textField('全段まとめて', 'attr-dept-all', cDeptAll, 'list="dept-options"');
+  html += '<details' + (cDeptAll === null ? ' open' : '') + ' style="margin-top:4px;"><summary style="font-size:11.5px; color:#3A7BD5; cursor:pointer;">1段ごとに設定</summary>';
+  for (let i = 0; i < maxLv; i++) {
+    const have = sel.filter(p => (p.levels || []).length > i);
+    const c = commonValue(have.map(p => ensureDepts(p)[i]));
+    const label = (i + 1) + '段目' + (have.length < n ? '<small style="color:#aaa;">(' + have.length + '件)</small>' : '');
+    html += textField(label, 'attr-dept-' + i, c, 'list="dept-options" data-level="' + i + '"');
+  }
+  html += '</details></div>';
+
+  html += textField('メモ', 'attr-memo', cMemo);
+
+  html += '<div class="attr-actions">';
+  html += '<button type="button" class="sel-btn" style="background:#2B5D8C; padding:8px 14px; font-size:12.5px;" onclick="applyAttrForm()">' + (n === 1 ? '変更を反映' : 'まとめて変更') + '</button>';
+  html += '<button type="button" class="attr-action" onclick="rotateSelected()">' + (n === 1 ? '90°回転' : 'まとめて90°回転') + '</button>';
+  html += '</div>';
+  html += '<div class="attr-actions">';
+  if (n === 1) html += '<button type="button" class="attr-action" onclick="insertAfterSelected()">この次に番号を挿入</button>';
+  html += '<button type="button" class="attr-action danger" onclick="deleteSelected()">選択した ' + n + ' 件を削除</button>';
+  html += '<button type="button" class="attr-action" onclick="clearSelection()">選択を解除</button>';
+  html += '</div>';
+  html += '<div class="attr-note">入力・選択した項目だけを、選択中のピンにまとめて反映します（Enterでも反映）。</div>';
+
+  body.innerHTML = html;
+}
+function pickAttrCat(cat) {
+  const row = document.getElementById('attr-cat-row');
+  row.dataset.picked = cat;
+  row.querySelectorAll('.attr-cat-btn').forEach(b => {
+    const on = b.dataset.cat === cat;
+    b.classList.toggle('active', on);
+    b.style.background = on ? cats[b.dataset.cat].color : '';
+  });
+  // タイプ変更に合わせて段数・幅の欄を初期値に（その他は現状維持）
+  if (cat === 'low' || cat === 'high') {
+    const lv = document.getElementById('attr-levels'), wd = document.getElementById('attr-width');
+    if (lv) lv.value = getLevelCount(cat);
+    if (wd) wd.value = 0.9;
+  }
+}
+function applyAttrForm() {
+  const sel = selectedPinsSorted();
+  if (!sel.length) return;
+  const get = id => document.getElementById(id);
+  const changed = el => el && el.value !== el.dataset.initial;
+  const row = get('attr-cat-row');
+  const newCat = row.dataset.picked && row.dataset.picked !== row.dataset.initial ? row.dataset.picked : null;
+  const lvEl = get('attr-levels'), wdEl = get('attr-width');
+  const newLv = changed(lvEl) && lvEl.value !== '' ? Math.max(1, parseInt(lvEl.value, 10) || 1) : null;
+  const newWd = changed(wdEl) && wdEl.value !== '' ? Math.max(0, parseFloat(wdEl.value) || 0) : null;
+  const deptAllEl = get('attr-dept-all');
+  const levelDeptEls = Array.from(document.querySelectorAll('#attr-body input[data-level]')).filter(changed);
+
+  sel.forEach(p => {
+    if (newCat && p.cat !== newCat) {
+      p.cat = newCat;
+      if (newCat !== 'other') { p.levels = makeLevels(newCat); p.length = 0.9; }
+      else { p.length = pinWidth(p); }
+    }
+    if (newLv !== null) p.levels = makeLevels(p.cat, newLv);
+    if (newWd !== null) p.length = newWd;
+    if (newCat || newLv !== null || newWd !== null) p.fm = +(p.levels.length * pinWidth(p)).toFixed(2);
+    const depts = ensureDepts(p);
+    if (changed(deptAllEl)) depts.fill(deptAllEl.value.trim());
+    levelDeptEls.forEach(el => {
+      const i = parseInt(el.dataset.level, 10);
+      if (i < depts.length) depts[i] = el.value.trim();
+    });
+    if (changed(get('attr-name'))) p.name = get('attr-name').value.trim();
+    if (changed(get('attr-memo'))) p.memo = get('attr-memo').value.trim();
+  });
+  lastAttrKey = null;
+  renderPins(); updateStats(); autoSave();
+  showToast(sel.length === 1 ? '変更を反映しました。' : sel.length + '件にまとめて反映しました。');
+}
+document.getElementById('attr-body').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); applyAttrForm(); }
+});
+function insertAfterSelected() {
+  if (selection.size !== 1) return;
+  const no = Array.from(selection)[0].no;
+  setNextNo(no + 1);
+  showToast('次に配置するピンは ' + padNo(no + 1) + ' になります（以降の番号は自動で後ろへずれます）。');
 }
 function toggleSelectMode() {
   selectMode = !selectMode;
@@ -539,17 +746,6 @@ function rotateSelected() {
 }
 // ---------- 整列（PowerPoint風） ----------
 // 図面が回転していても「画面で見た向き」で揃えるため、画面向きの座標に変換して計算する
-function toggleAlignMenu(e) {
-  if (e) e.stopPropagation();
-  document.getElementById('align-menu').classList.toggle('visible');
-}
-function closeAlignMenu() {
-  const m = document.getElementById('align-menu');
-  if (m) m.classList.remove('visible');
-}
-document.addEventListener('mousedown', function(e) {
-  if (!e.target.closest('.align-wrap')) closeAlignMenu();
-});
 function pinToScreenAxes(p) {
   const lx = p.xPct / 100 * baseWidthPx;
   const ly = p.yPct / 100 * baseWidthPx * canvasAspect;
@@ -568,7 +764,6 @@ function setPinFromScreenAxes(p, sx, sy) {
   p.yPct = Math.min(100, Math.max(0, ly / (baseWidthPx * canvasAspect) * 100));
 }
 function alignSelected(mode) {
-  closeAlignMenu();
   const ctx = currentContext();
   const targets = Array.from(selection).filter(p => p.context === ctx);
   const isDist = mode === 'hdist' || mode === 'vdist';
@@ -631,25 +826,6 @@ function doDeleteSelected() {
   renderPins(); updateStats(); autoSave();
   showToast('選択したピンを削除しました。');
 }
-function changeSelectedCategory(newCat) {
-  if (!selection.size) return;
-  if (newCat === 'other') {
-    pendingGroupChange = true;
-    document.getElementById('other-levels-input').value = '1';
-    document.getElementById('other-length-input').value = '';
-    document.getElementById('other-input-overlay').style.display = 'flex';
-    updateOtherFmPreview();
-    return;
-  }
-  selection.forEach(p => {
-    p.cat = newCat;
-    p.fm = newCat === 'low' ? LOW_FM : HIGH_FM;
-    p.levels = makeLevels(newCat);
-    p.length = 0;
-  });
-  renderPins(); updateStats(); autoSave();
-  showToast('選択したピンの分類を「' + cats[newCat].label + '」に変更しました。');
-}
 document.addEventListener('keydown', function(e) {
   const t = e.target;
   if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
@@ -684,8 +860,15 @@ container.addEventListener('click', function(e) {
   if (marqueeDragged) { marqueeDragged = false; return; }
   const pinEl = e.target.closest('.pin');
   if (pinEl) {
-    if (!selection.has(pins[parseInt(pinEl.dataset.idx, 10)])) { if (selection.size) clearSelection(); }
-    openPinCategoryMenu(parseInt(pinEl.dataset.idx, 10), pinEl);
+    // クリックで選択（Ctrl+クリックで追加／解除）
+    const p = pins[parseInt(pinEl.dataset.idx, 10)];
+    if (e.ctrlKey || e.metaKey) {
+      if (selection.has(p)) selection.delete(p); else selection.add(p);
+    } else {
+      selection.clear();
+      selection.add(p);
+    }
+    renderPins();
     return;
   }
   if (e.shiftKey || panDragged) { panDragged = false; return; }
@@ -714,7 +897,7 @@ function placePin(cat, xPct, yPct, fm, levels, length) {
   const no = nextNo;
   // 既存の同番号以降は1つ後ろへずらす（途中への追加）
   pins.forEach(p => { if (p.no >= no) { p.no++; p.id = padNo(p.no); } });
-  pins.push({ cat, id: padNo(no), no, xPct, yPct, context: currentContext(), page: currentPage, dept: '', fm, levels, photo: null, length: cat === 'other' ? (length || 0) : 0 });
+  pins.push({ cat, id: padNo(no), no, xPct, yPct, context: currentContext(), page: currentPage, dept: '', depts: levels.map(() => ''), name: '', memo: '', fm, levels, photo: null, length: cat === 'other' ? (length || 0) : 0.9 });
   setNextNo(no + 1);
   renderPins();
   updateStats();
@@ -735,30 +918,6 @@ function confirmOtherInput() {
   const length = parseFloat(document.getElementById('other-length-input').value) || 0;
   const fm = +(lv * length).toFixed(2);
 
-  if (pendingGroupChange) {
-    selection.forEach(p => { p.cat = 'other'; p.levels = makeLevels('other', lv); p.length = length; p.fm = fm; });
-    pendingGroupChange = false;
-    document.getElementById('other-input-overlay').style.display = 'none';
-    renderPins(); updateStats(); autoSave();
-    showToast('選択したピンの分類を「その他」に変更しました。');
-    return;
-  }
-
-  if (pendingCategoryChangeIdx !== null) {
-    const p = pins[pendingCategoryChangeIdx];
-    p.cat = 'other';
-    p.levels = makeLevels('other', lv);
-    p.length = length;
-    p.fm = fm;
-    pendingCategoryChangeIdx = null;
-    document.getElementById('other-input-overlay').style.display = 'none';
-    renderPins();
-    updateStats();
-    autoSave();
-    showToast('什器分類を「その他」に変更しました。');
-    return;
-  }
-
   if (!pendingOtherClick) return;
   placePin('other', pendingOtherClick.xPct, pendingOtherClick.yPct, fm, makeLevels('other', lv), length);
   pendingOtherClick = null;
@@ -766,95 +925,12 @@ function confirmOtherInput() {
 }
 
 function cancelOtherInput() {
-  pendingGroupChange = false;
   pendingOtherClick = null;
-  pendingCategoryChangeIdx = null;
   document.getElementById('other-input-overlay').style.display = 'none';
 }
 
 document.getElementById('other-input-overlay').addEventListener('click', function(e) {
   if (e.target.id === 'other-input-overlay') cancelOtherInput();
-});
-
-// --- 什器分類の変更（配置後に変更できるようにする） / 削除 ---
-let editingPinIdx = null;
-
-function openPinCategoryMenu(idx, pinEl) {
-  editingPinIdx = idx;
-  const menu = document.getElementById('pin-cat-menu');
-  const rect = pinEl.getBoundingClientRect();
-  menu.style.left = (rect.left + rect.width / 2) + 'px';
-  menu.style.top = (rect.bottom + 6) + 'px';
-  menu.classList.add('visible');
-}
-
-function closePinCategoryMenu() {
-  editingPinIdx = null;
-  document.getElementById('pin-cat-menu').classList.remove('visible');
-}
-
-function changePinCategory(newCat) {
-  if (editingPinIdx === null) return;
-  const idx = editingPinIdx;
-  const p = pins[idx];
-  closePinCategoryMenu();
-  if (p.cat === newCat) return;
-
-  if (newCat === 'other') {
-    pendingCategoryChangeIdx = idx;
-    document.getElementById('other-levels-input').value = '1';
-    document.getElementById('other-length-input').value = '';
-    document.getElementById('other-input-overlay').style.display = 'flex';
-    updateOtherFmPreview();
-    setTimeout(function() {
-      const el = document.getElementById('other-levels-input');
-      if (el) { el.focus(); el.select(); }
-    }, 0);
-    return;
-  }
-
-  p.cat = newCat;
-  if (newCat === 'low') { p.fm = LOW_FM; p.levels = makeLevels('low'); p.length = 0; }
-  else { p.fm = HIGH_FM; p.levels = makeLevels('high'); p.length = 0; }
-  renderPins();
-  updateStats();
-  autoSave();
-  showToast('什器分類を「' + cats[newCat].label + '」に変更しました。');
-}
-
-function rotatePin() {
-  if (editingPinIdx === null) return;
-  const p = pins[editingPinIdx];
-  closePinCategoryMenu();
-  p.rot = ((p.rot || 0) + 90) % 360;
-  renderPins();
-  autoSave();
-}
-
-function insertAfterPin() {
-  if (editingPinIdx === null) return;
-  const no = pins[editingPinIdx].no;
-  closePinCategoryMenu();
-  setNextNo(no + 1);
-  showToast('次に配置するピンは ' + padNo(no + 1) + ' になります（以降の番号は自動で後ろへずれます）。');
-}
-
-function deletePin() {
-  if (editingPinIdx === null) return;
-  const idx = editingPinIdx;
-  closePinCategoryMenu();
-  removePinAt(idx);
-  renderPins();
-  updateStats();
-  autoSave();
-  showToast('ピンを削除しました。以降の番号を詰めました。');
-}
-
-document.addEventListener('mousedown', function(e) {
-  const menu = document.getElementById('pin-cat-menu');
-  if (!menu.classList.contains('visible')) return;
-  if (e.target.closest('#pin-cat-menu') || e.target.closest('.pin')) return;
-  closePinCategoryMenu();
 });
 
 // ---------- PDFドラッグ&ドロップ ----------
@@ -900,6 +976,9 @@ container.addEventListener('mousedown', function(e) {
     e.preventDefault();
     e.stopPropagation();
     draggingPinIdx = parseInt(pinEl.dataset.idx, 10);
+    // 未選択のピンを掴んだらそのピンだけを選択（ここでは再描画しない：クリック判定を壊さないため）
+    const grabbed = pins[draggingPinIdx];
+    if (!selection.has(grabbed) && !e.ctrlKey && !e.metaKey) { selection.clear(); selection.add(grabbed); }
     pinDragged = false;
     pinDragStartX = e.clientX;
     pinDragStartY = e.clientY;
@@ -1085,15 +1164,6 @@ function updateStats() {
   document.getElementById('count-other').textContent = countOther;
   const total = countLow + countHigh + countOther;
   document.getElementById('count-total').textContent = total;
-  document.getElementById('sidebar-count').textContent = total + '件';
-
-  const fmLow = pins.filter(p => p.cat === 'low').reduce((s, p) => s + (parseFloat(p.fm) || 0), 0);
-  const fmHigh = pins.filter(p => p.cat === 'high').reduce((s, p) => s + (parseFloat(p.fm) || 0), 0);
-  const fmOther = pins.filter(p => p.cat === 'other').reduce((s, p) => s + (parseFloat(p.fm) || 0), 0);
-  document.getElementById('fm-low').textContent = fmLow.toFixed(1);
-  document.getElementById('fm-high').textContent = fmHigh.toFixed(1);
-  document.getElementById('fm-other').textContent = fmOther.toFixed(1);
-  document.getElementById('fm-total').textContent = (fmLow + fmHigh + fmOther).toFixed(1);
 }
 
 // ---------- トースト ----------
@@ -1228,6 +1298,7 @@ function sizePlanInner() {
 
 function applyTransform() {
   planInner.style.transform = 'translate(' + panX + 'px,' + panY + 'px) rotate(' + rotation + 'deg) scale(' + (zoom / 100) + ')';
+  positionSelToolbar();
 }
 
 function updatePageIndicator() {
@@ -1306,6 +1377,8 @@ function doResetPdf() {
   planInner.classList.add('fill');
   document.getElementById('pins-layer').innerHTML = '';
   document.getElementById('pdf-input').value = '';
+  selection.clear();
+  updateSelPanel();
 }
 
 // ---------- 保存 / 読み込み ----------
@@ -1348,6 +1421,7 @@ function normalizePinNumbers() {
   pins.forEach((p, i) => {
     if (typeof p.no !== 'number') p.no = p.seq || parseInt(p.id, 10) || (i + 1);
     p.id = padNo(p.no);
+    ensureDepts(p);
   });
 }
 
@@ -1577,22 +1651,44 @@ function exportToExcel() {
   }
 
   function unitLength(p) {
-    if (p.cat === 'low' || p.cat === 'high') return 0.9;
-    return Math.round((parseFloat(p.length) || 0) * 10) / 10;
+    return Math.round(pinWidth(p) * 100) / 100;
   }
 
   const sortedPins = pins.slice().sort((a, b) => a.no - b.no);
-  const detailRows = sortedPins.map((p) => ({
-    'No': p.no,
-    'ID': p.id,
-    'カテゴリ': cats[p.cat].label,
-    '段数': (p.levels || []).length,
-    '幅(m)': unitLength(p),
-    '収納量(fm)': Math.round((parseFloat(p.fm) || 0) * 10) / 10,
-    'PDFページ': p.page,
-    'X位置(%)': Math.round(p.xPct * 100) / 100,
-    'Y位置(%)': Math.round(p.yPct * 100) / 100
-  }));
+  const maxLevels = Math.max(0, ...sortedPins.map(p => (p.levels || []).length));
+  const detailRows = sortedPins.map((p) => {
+    const row = {
+      'No': p.no,
+      'ID': p.id,
+      'カテゴリ': cats[p.cat].label,
+      '名称': p.name || '',
+      '段数': (p.levels || []).length,
+      '幅(m)': unitLength(p),
+      '収納量(fm)': Math.round((parseFloat(p.fm) || 0) * 10) / 10
+    };
+    const depts = ensureDepts(p);
+    for (let i = 0; i < maxLevels; i++) row['管理部署 ' + (i + 1) + '段目'] = depts[i] || '';
+    row['メモ'] = p.memo || '';
+    row['PDFページ'] = p.page;
+    row['X位置(%)'] = Math.round(p.xPct * 100) / 100;
+    row['Y位置(%)'] = Math.round(p.yPct * 100) / 100;
+    return row;
+  });
+
+  // 部署別の収納量（1段あたり = fm ÷ 段数）
+  const fmByDept = {};
+  sortedPins.forEach(p => {
+    const depts = ensureDepts(p);
+    if (!depts.length) return;
+    const per = (parseFloat(p.fm) || 0) / depts.length;
+    depts.forEach(d => {
+      const k = d || '（未設定）';
+      if (!fmByDept[k]) fmByDept[k] = { levels: 0, fm: 0 };
+      fmByDept[k].levels++;
+      fmByDept[k].fm += per;
+    });
+  });
+  const deptRows = Object.keys(fmByDept).sort().map(k => ({ '管理部署': k, '段数': fmByDept[k].levels, '収納量(fm)': Math.round(fmByDept[k].fm * 10) / 10 }));
 
   const fmByCat = { low: 0, high: 0, other: 0 };
   const countByCat = { low: 0, high: 0, other: 0 };
@@ -1609,12 +1705,18 @@ function exportToExcel() {
   const wb = XLSX.utils.book_new();
 
   const wsDetail = XLSX.utils.json_to_sheet(detailRows);
-  wsDetail['!cols'] = [{ wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }];
+  const deptCols = [];
+  for (let i = 0; i < maxLevels; i++) deptCols.push({ wch: 14 });
+  wsDetail['!cols'] = [{ wch: 6 }, { wch: 10 }, { wch: 12 }, { wch: 16 }, { wch: 8 }, { wch: 10 }, { wch: 12 }].concat(deptCols, [{ wch: 20 }, { wch: 10 }, { wch: 12 }, { wch: 12 }]);
   XLSX.utils.book_append_sheet(wb, wsDetail, 'ピン一覧');
 
   const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
   wsSummary['!cols'] = [{ wch: 14 }, { wch: 8 }, { wch: 12 }];
   XLSX.utils.book_append_sheet(wb, wsSummary, '集計');
+
+  const wsDept = XLSX.utils.json_to_sheet(deptRows);
+  wsDept['!cols'] = [{ wch: 18 }, { wch: 8 }, { wch: 12 }];
+  XLSX.utils.book_append_sheet(wb, wsDept, '部署別');
 
   const today = new Date();
   const y = today.getFullYear();
@@ -1633,6 +1735,7 @@ function exportToExcel() {
 })();
 
 selectCat('low');
+renderAttrPanel();
 </script>
 <!-- 著作権表記 (c) 合同会社mokume -->
 <style>
