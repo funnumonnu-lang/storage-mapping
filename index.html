@@ -345,6 +345,20 @@
   </div>
 </div>
 
+<div id="confirm-overlay" class="modal-overlay">
+  <div class="modal" style="width:380px; max-width:92vw;">
+    <div class="modal-header">
+      <span>確認</span>
+      <button class="modal-close" onclick="closeAppConfirm(false)">×</button>
+    </div>
+    <div class="modal-body" style="padding:18px; font-size:13px; color:#333; line-height:1.6;" id="confirm-message"></div>
+    <div class="modal-footer">
+      <button class="action-btn" onclick="closeAppConfirm(false)">キャンセル</button>
+      <button class="sel-btn" style="background:#C0392B;" id="confirm-ok-btn" onclick="closeAppConfirm(true)">OK</button>
+    </div>
+  </div>
+</div>
+
 <div id="export-preview-overlay" class="modal-overlay">
   <div class="modal" style="width:640px; max-width:92vw;">
     <div class="modal-header">
@@ -584,9 +598,34 @@ function alignSelected(mode) {
   pts.forEach(o => setPinFromScreenAxes(o.p, o.x, o.y));
   renderPins(); autoSave();
 }
+// ---------- 確認ダイアログ（ブラウザ標準の confirm は環境によって自動でキャンセルされるため自前で表示） ----------
+let appConfirmCallback = null;
+function appConfirm(message, onOk, okLabel) {
+  appConfirmCallback = onOk;
+  document.getElementById('confirm-message').textContent = message;
+  const okBtn = document.getElementById('confirm-ok-btn');
+  okBtn.textContent = okLabel || 'OK';
+  document.getElementById('confirm-overlay').style.display = 'flex';
+  okBtn.focus();
+}
+function closeAppConfirm(ok) {
+  document.getElementById('confirm-overlay').style.display = 'none';
+  const cb = appConfirmCallback;
+  appConfirmCallback = null;
+  if (ok && cb) cb();
+}
+function isAppConfirmOpen() {
+  return document.getElementById('confirm-overlay').style.display === 'flex';
+}
+document.getElementById('confirm-overlay').addEventListener('click', function(e) {
+  if (e.target.id === 'confirm-overlay') closeAppConfirm(false);
+});
+
 function deleteSelected() {
   if (!selection.size) return;
-  if (!confirm(selection.size + '件のピンを削除します。番号は自動で詰めます。よろしいですか？')) return;
+  appConfirm(selection.size + '件のピンを削除します。番号は自動で詰めます。よろしいですか？', doDeleteSelected, '削除する');
+}
+function doDeleteSelected() {
   Array.from(selection).forEach(p => { const i = pins.indexOf(p); if (i >= 0) removePinAt(i); });
   selection.clear();
   renderPins(); updateStats(); autoSave();
@@ -614,6 +653,10 @@ function changeSelectedCategory(newCat) {
 document.addEventListener('keydown', function(e) {
   const t = e.target;
   if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
+  if (isAppConfirmOpen()) {
+    if (e.key === 'Escape') closeAppConfirm(false);
+    return;
+  }
   if (e.key === 'Escape') {
     if (selectMode) toggleSelectMode();
     if (selection.size) clearSelection();
@@ -1079,7 +1122,9 @@ function undoLast() {
 
 function clearAll() {
   if (!pins.length) return;
-  if (!confirm('配置済みのピンをすべて削除します。よろしいですか？')) return;
+  appConfirm('配置済みのピンをすべて削除します。よろしいですか？', doClearAll, 'すべて削除');
+}
+function doClearAll() {
   pins = [];
   selection.clear();
   setNextNo(1);
@@ -1239,7 +1284,9 @@ function resetView() {
   renderPins();
 }
 function resetPdf() {
-  if (!confirm('図面を閉じます。配置済みのピン情報も表示から外れます（保存データは残ります）。よろしいですか？')) return;
+  appConfirm('図面を閉じます。配置済みのピン情報も表示から外れます（保存データは残ります）。よろしいですか？', doResetPdf, '閉じる');
+}
+function doResetPdf() {
   pdfDoc = null;
   usingPdf = false;
   currentPage = 1;
